@@ -1,5 +1,5 @@
 [Package]
-name = "HapticX Engine"
+name = "hapticx"
 description = "2D/UI Engine written with love"
 author = "HapticX"
 version = "0.0.1"
