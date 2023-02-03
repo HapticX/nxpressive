@@ -28,3 +28,11 @@ suite "Core":
     echo rgbaHex.blend(rgbHex, BlendMode.SOFT_LIGHT)
     echo rgbaHex.blend(rgbHex, BlendMode.DARKEN)
     echo rgbaHex.blend(rgbHex, BlendMode.LIGHTEN)
+  
+  test "hue":
+    let rgb = newColor(50, 100, 200)
+    echo rgb
+    echo rgb.hue
+    echo rgb.saturation
+    echo rgb.brightness
+    echo newColor(rgb.hex)

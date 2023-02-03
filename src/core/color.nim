@@ -194,3 +194,45 @@ func blend*(a, b: Color, blendMode: BlendMode = BlendMode.NORMAL): Color =
         2*a*b + a*a*(1 - 2*b)
       else:
         2*a*(1 - b) + sqrt(a)*(2*b - 1)
+
+
+# --== Other color systems ==-- #
+func `hue`*(a: Color): float32 =
+  let
+    maxValue = max(a.r, max(a.g, a.b))
+    minValue = min(a.r, min(a.g, a.b))
+    delta = maxValue - minValue
+
+  if delta != 0f:
+    if a.r == maxValue:
+      result = (a.g - a.b) / delta
+    elif a.g == maxValue:
+      result = 2f + (a.b - a.r) / delta
+    else:
+      result = 4f + (a.r - a.g) / delta
+    result *= 60f
+    if result < 0f:
+      result += 360f
+  result = result / 360f
+
+func `saturation`*(a: Color): float32 =
+  let
+    maxValue = max(a.r, max(a.g, a.b))
+    minValue = min(a.r, min(a.g, a.b))
+    delta = maxValue - minValue
+  
+  if maxValue == 0:
+    0f
+  else:
+    (delta / maxValue)
+
+func `brightness`*(a: Color): float32 =
+  max(a.r, max(a.g, a.b))
+
+func `hex`*(a: Color): int64 =
+  (
+    ((a.r * 255f).int64 shl 24) or
+    ((a.g * 255f).int64 shl 16) or
+    ((a.b * 255f).int64 shl 8) or
+    (a.a * 255f).int64
+  )
