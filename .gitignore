@@ -1,3 +1,18 @@
 nimcache/
 nimblecache/
 htmldocs/
+
+docs/
+
+*.log
+*.lg
+*.crashlog
+*.crash
+
+# binaries
+*.exe
+*.x86
+*.x64
+*.x32_86
+*.zip
+*.7z
