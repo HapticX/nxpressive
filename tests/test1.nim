@@ -12,3 +12,12 @@ suite "Core":
 
     let rgbHex = newColor(0xFFAA99)
     echo rgbHex
+
+  test "Color blending":
+    let rgbaHex = newColor(0xFFAA9944)
+    let rgbHex = newColor(0xFFAA99)
+
+    echo rgbaHex.blend(rgbHex, BlendMode.NORMAL)
+    echo rgbaHex.blend(rgbHex, BlendMode.MULTIPLY)
+    echo rgbaHex.blend(rgbHex, BlendMode.SCREEN)
+    echo rgbaHex.blend(rgbHex, BlendMode.OVERLAY)
