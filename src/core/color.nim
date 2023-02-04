@@ -3,6 +3,7 @@
 ]#
 import
   strformat,
+  strutils,
   math
 
 
@@ -23,7 +24,7 @@ type
     SOFT_LIGHT
 
 
-func newColor*(): Color =
+func newColor*: Color =
   ## Creates a new color object with default values.
   ## Color(1f, 1f, 1f, 1f)
   Color(r: 1f, g: 1f, b: 1f, a: 1f)
@@ -74,12 +75,17 @@ func newColor*(hexInteger: int): Color =
   )
 
 
+func newColor*(hexString: string): Color =
+  ## Creates a new color from HEX string that starts with `0x`, `0X` or `#`.
+  newColor(parseHexInt(hexString))
+
+
 # --== Operators ==-- #
 func `$`*(clr: Color): string =
   ## Casts color into string
   fmt"clr({clr.r}, {clr.g}, {clr.b}, {clr.a})"
 
-template operator(funcname, op: untyped): untyped =
+template provideOperator(funcname, op: untyped): untyped =
   func `funcname`*(a, b: Color): Color =
     Color(
       r: clamp(`op`(a.r, b.r), 0f..1f),
@@ -102,42 +108,36 @@ template operator(funcname, op: untyped): untyped =
       a: clamp(`op`(a.a, b), 0f..1f)
     )
 
-template boolop(funcname, op: untyped): untyped =
+template provideBinOperator(funcname, op: untyped): untyped =
   func `funcname`*(a, b: Color): bool =
-    (
-      `op`(a.r,  b.r) and
-      `op`(a.g,  b.g) and
-      `op`(a.b,  b.b) and
-      `op`(a.a,  b.b)
-    )
+    `op`(a.r, b.r) and
+    `op`(a.g, b.g) and
+    `op`(a.b, b.b) and
+    `op`(a.a, b.a)
   func `funcname`*(a: float32, b: Color): bool =
-    (
-      `op`(a, b.r) and
-      `op`(a, b.g) and
-      `op`(a, b.b) and
-      `op`(a, b.b)
-    )
+    `op`(a, b.r) and
+    `op`(a, b.g) and
+    `op`(a, b.b) and
+    `op`(a, b.a)
   func `funcname`*(a: Color, b: float32): bool =
-    (
-      `op`(a.r, b) and
-      `op`(a.g, b) and
-      `op`(a.b, b) and
-      `op`(a.a, b)
-    )
+    `op`(a.r, b) and
+    `op`(a.g, b) and
+    `op`(a.b, b) and
+    `op`(a.a, b)
 
-operator(`*`, `*`)
-operator(`-`, `-`)
-operator(`+`, `+`)
-operator(`/`, `/`)
+provideOperator(`*`, `*`)
+provideOperator(`-`, `-`)
+provideOperator(`+`, `+`)
+provideOperator(`/`, `/`)
 
-boolop(`>`, `>`)
-boolop(`<`, `<`)
-boolop(`==`, `==`)
-boolop(`!=`, `!=`)
+provideBinOperator(`>`, `>`)
+provideBinOperator(`<`, `<`)
+provideBinOperator(`==`, `==`)
+provideBinOperator(`!=`, `!=`)
 
 
 # --== Methods ==-- #
-template math2clrs(funcname: untyped): untyped =
+template provideFunc4Colors(funcname: untyped): untyped =
   func `funcname`*(a, b: Color): Color = 
     Color(
       r: `funcname`(a.r, b.r),
@@ -145,7 +145,7 @@ template math2clrs(funcname: untyped): untyped =
       b: `funcname`(a.b, b.b),
       a: `funcname`(a.a, b.a)
     )
-template math2clr(funcname: untyped): untyped =
+template provideFunc4Color(funcname: untyped): untyped =
   func `funcname`*(a: Color): Color = 
     Color(
       r: `funcname`(a.r),
@@ -154,10 +154,10 @@ template math2clr(funcname: untyped): untyped =
       a: `funcname`(a.a)
     )
 
-math2clrs(min)
-math2clrs(max)
-math2clr(sqrt)
-math2clr(abs)
+provideFunc4Colors(min)
+provideFunc4Colors(max)
+provideFunc4Color(sqrt)
+provideFunc4Color(abs)
 
 
 func blend*(a, b: Color, blendMode: BlendMode = BlendMode.NORMAL): Color =

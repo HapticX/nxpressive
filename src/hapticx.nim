@@ -1,5 +1,7 @@
 import
-  core/color
+  core/color,
+  core/vec2
 
 export
-  color
+  color,
+  vec2

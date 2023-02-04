@@ -13,6 +13,10 @@ suite "Core":
     let rgbHex = newColor(0xFFAA99)
     echo rgbHex
 
+    let rgbStrHex = newColor("#FFAA99")
+    echo rgbStrHex
+    assert rgbHex == rgbStrHex
+
   test "Color blending":
     let rgbaHex = newColor(0xFFAA9944)
     let rgbHex = newColor(0xFFAA99)
@@ -36,3 +40,7 @@ suite "Core":
     echo rgb.saturation
     echo rgb.brightness
     echo newColor(rgb.hex)
+  
+  test "Vec2":
+    let vec2 = newVec2(0.5f, 1f)
+    echo vec2
