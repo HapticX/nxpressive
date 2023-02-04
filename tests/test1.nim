@@ -1,5 +1,7 @@
-import unittest
-import ../src/hapticx
+import
+  unittest,
+  math,
+  ../src/hapticx
 
 
 suite "Core":
@@ -44,3 +46,6 @@ suite "Core":
   test "Vec2":
     let vec2 = newVec2(0.5f, 1f)
     echo vec2
+
+    assert radToDeg(Vec2Right.angle2(Vec2Up)) == 90f
+    assert radToDeg(Vec2Up.angle2(Vec2Down)) == 180f

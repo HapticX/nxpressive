@@ -1,7 +1,9 @@
 #[
   Provides working with Vec2
 ]#
-import strformat
+import
+  strformat,
+  math
 
 type
   Vec2* = object
@@ -42,3 +44,46 @@ provideBinOperator(`==`, `==`)
 provideBinOperator(`!=`, `!=`)
 provideBinOperator(`>`, `>`)
 provideBinOperator(`<`, `<`)
+
+# --== Methods ==-- #
+template provideAnyFunc(funcname: untyped, oneArg: bool = false): untyped =
+  when oneArg:
+    func `funcname`*(a: Vec2): Vec2 =
+      Vec2(
+        x: `funcname`(a.x),
+        y: `funcname`(a.y)
+      )
+  else:
+    func `funcname`*(a, b: Vec2): Vec2 =
+      Vec2(
+        x: `funcname`(a.x, b.x),
+        y: `funcname`(a.y, b.y)
+      )
+
+provideAnyFunc(min)
+provideAnyFunc(max)
+provideAnyFunc(sqrt, true)
+provideAnyFunc(abs, true)
+
+func scalar*(a, b: Vec2): float =
+  a.x*b.x + a.y*b.y
+
+func len*(a: Vec2): float =
+  sqrt(a.x*a.x + a.y*a.y)
+
+func angle*(a: Vec2): float =
+  let length = a.len
+  if length != 0:
+    arccos(a.x+a.y / length)
+  else:
+    0f
+
+func angle2*(a, b: Vec2): float =
+  let length = a.len
+  if length != 0:
+    arccos(a.scalar(b) / length)
+  else:
+    0f
+
+func dot*(a, b: Vec2): float =
+  a.len * b.len * cos(a.angle2(b))
