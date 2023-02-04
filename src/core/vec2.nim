@@ -87,3 +87,15 @@ func angle2*(a, b: Vec2): float =
 
 func dot*(a, b: Vec2): float =
   a.len * b.len * cos(a.angle2(b))
+
+func dist2*(a, b: Vec2): float =
+  (b - a).len
+
+func normalized*(a: Vec2): Vec2 =
+  a / a.len
+
+func rotated*(a: Vec2, b: float): Vec2 =
+  Vec2(
+    x: a.x*cos(b) - a.y*sin(b),
+    y: a.x*sin(b) + a.y*cos(b)
+  )
