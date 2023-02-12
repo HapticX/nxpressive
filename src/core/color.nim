@@ -89,24 +89,24 @@ func `$`*(clr: Color): string =
 template provideOperator(funcname, op: untyped): untyped =
   func `funcname`*(a, b: Color): Color =
     Color(
-      r: clamp(`op`(a.r, b.r), 0f..1f),
-      g: clamp(`op`(a.g, b.g), 0f..1f),
-      b: clamp(`op`(a.b, b.b), 0f..1f),
-      a: clamp(`op`(a.a, b.a), 0f..1f)
+      r: clamp(`op`(a.r, b.r), 0f, 1f),
+      g: clamp(`op`(a.g, b.g), 0f, 1f),
+      b: clamp(`op`(a.b, b.b), 0f, 1f),
+      a: clamp(`op`(a.a, b.a), 0f, 1f)
     )
   func `funcname`*(a: float32, b: Color): Color =
     Color(
-      r: clamp(`op`(a, b.r), 0f..1f),
-      g: clamp(`op`(a, b.g), 0f..1f),
-      b: clamp(`op`(a, b.b), 0f..1f),
-      a: clamp(`op`(a, b.a), 0f..1f)
+      r: clamp(`op`(a, b.r), 0f, 1f),
+      g: clamp(`op`(a, b.g), 0f, 1f),
+      b: clamp(`op`(a, b.b), 0f, 1f),
+      a: clamp(`op`(a, b.a), 0f, 1f)
     )
   func `funcname`*(a: Color, b: float32): Color =
     Color(
-      r: clamp(`op`(a.r, b), 0f..1f),
-      g: clamp(`op`(a.g, b), 0f..1f),
-      b: clamp(`op`(a.b, b), 0f..1f),
-      a: clamp(`op`(a.a, b), 0f..1f)
+      r: clamp(`op`(a.r, b), 0f, 1f),
+      g: clamp(`op`(a.g, b), 0f, 1f),
+      b: clamp(`op`(a.b, b), 0f, 1f),
+      a: clamp(`op`(a.a, b), 0f, 1f)
     )
 
 template provideBinOperator(funcname, op: untyped): untyped =
