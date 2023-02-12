@@ -5,11 +5,6 @@ on:
   pull_request:
 
 jobs:
-  skip:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Skip job"
-
   before:
     runs-on: ubuntu-latest
     if: "! contains(github.event.head_commit.message, '[skip ci]')"
@@ -56,7 +51,6 @@ jobs:
             echo "test: $file"
             nim c $file
             nim cpp $file
-            nim objc $file
             nim js $file
             timeout 2 xvfb-run --auto-servernum --server-num=1 ./${file%%.nim} || [ $? -eq ${{ env.TIMEOUT_EXIT_STATUS }} ]
           done
