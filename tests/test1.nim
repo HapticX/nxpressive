@@ -74,4 +74,12 @@ suite "Core":
       vec2 = newVec2(0.5f, 0.5f)
     
     echo vec1.bounce(vec2)
-
+  
+  test "Animatable":
+    let
+      x = animatable(0f)
+    
+    echo tween(x, 10f, 0.5f, LINEAR)
+    echo tween(x, 10f, 0.5f, EASE_IN_OUT_SINE)
+    echo tween(x, 10f, 0.5f, EASE_IN_SINE)
+    echo tween(x, 10f, 0.5f, EASE_OUT_SINE)

@@ -1,7 +1,9 @@
 import
   core/color,
-  core/vec2
+  core/vec2,
+  core/animatable
 
 export
   color,
-  vec2
+  vec2,
+  animatable
