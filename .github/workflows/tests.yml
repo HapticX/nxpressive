@@ -56,9 +56,9 @@ jobs:
           cd tests
           for file in $(ls -v test*.nim); do
             echo "test: $file"
-            nim c $file
-            nim cpp $file
-            nim js $file
+            nim c -r $file
+            nim cpp -r $file
+            nim js -r $file
             timeout 2 xvfb-run --auto-servernum --server-num=1 ./${file%%.nim} || [ $? -eq ${{ env.TIMEOUT_EXIT_STATUS }} ]
           done
         shell: bash
