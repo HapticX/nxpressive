@@ -10,10 +10,13 @@ docs/
 *.crashlog
 *.crash
 
-# binaries
+# Binaries
 *.exe
 *.x86
 *.x64
 *.x32_86
 *.zip
 *.7z
+
+# Cache
+*.js

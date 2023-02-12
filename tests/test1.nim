@@ -9,8 +9,9 @@ suite "Core":
     let clr = newColor(255, 100, 0)
     echo clr
 
-    let rgbaHex = newColor(0xFFAA9944)
-    echo rgbaHex
+    when not defined(js):
+      let rgbaHex = newColor(0xFFAA9944)
+      echo rgbaHex
 
     let rgbHex = newColor(0xFFAA99)
     echo rgbHex
@@ -20,8 +21,8 @@ suite "Core":
     assert rgbHex == rgbStrHex
 
   test "Color blending":
-    let rgbaHex = newColor(0xFFAA9944)
-    let rgbHex = newColor(0xFFAA99)
+    let rgbaHex = newColor(0xFFBB99)
+    let rgbHex = newColor(0x227722)
 
     echo rgbaHex.blend(rgbHex, BlendMode.NORMAL)
     echo rgbaHex.blend(rgbHex, BlendMode.MULTIPLY)
@@ -49,3 +50,21 @@ suite "Core":
 
     assert radToDeg(Vec2Right.angle2(Vec2Up)) == 90f
     assert radToDeg(Vec2Up.angle2(Vec2Down)) == 180f
+  
+  test "interpolation":
+    let
+      vec1 = newVec2(0.25f, 0.75f)
+      vec2 = newVec2(0.5f, 0f)
+    
+    echo vec1.interpolate(vec2, 0f)
+    echo vec1.interpolate(vec2, 0.25f)
+    echo vec1.interpolate(vec2, 0.5f)
+    echo vec1.interpolate(vec2, 0.75f)
+    echo vec1.interpolate(vec2, 1f)
+  
+  test "snap":
+    let
+      vec = newVec2(37f, 12f)
+      snap = newVec2(5f, 5f)
+    echo vec.snapped(snap)
+

@@ -56,14 +56,15 @@ func newColor*(r, g, b, a: uint): Color =
   )
 
 
-func newColor*(hexInteger: int64): Color =
-  ## Creates a new color from one HEX 0xRRGGBBAA unsigned integer.
-  Color(
-    r: ((hexInteger and 0xFF000000) shr 24).float / 255f,
-    g: ((hexInteger and 0x00FF0000) shr 16).float / 255f,
-    b: ((hexInteger and 0x0000FF00) shr 8).float / 255f,
-    a: (hexInteger and 0x000000FF).float / 255f
-  )
+when not defined(js):
+  func newColor*(hexInteger: int64): Color =
+    ## Creates a new color from one HEX 0xRRGGBBAA unsigned integer.
+    Color(
+      r: ((hexInteger and 0xFF000000) shr 24).float / 255f,
+      g: ((hexInteger and 0x00FF0000) shr 16).float / 255f,
+      b: ((hexInteger and 0x0000FF00) shr 8).float / 255f,
+      a: (hexInteger and 0x000000FF).float / 255f
+    )
 
 func newColor*(hexInteger: int): Color =
   ## Creates a new color from one HEX 0xRRGGBB unsigned integer.
@@ -229,10 +230,18 @@ func `saturation`*(a: Color): float32 =
 func `brightness`*(a: Color): float32 =
   max(a.r, max(a.g, a.b))
 
-func `hex`*(a: Color): int64 =
-  (
-    ((a.r * 255f).int64 shl 24) or
-    ((a.g * 255f).int64 shl 16) or
-    ((a.b * 255f).int64 shl 8) or
-    (a.a * 255f).int64
-  )
+when not defined(js):
+  func `hex`*(a: Color): int64 =
+    (
+      ((a.r * 255f).int64 shl 24) or
+      ((a.g * 255f).int64 shl 16) or
+      ((a.b * 255f).int64 shl 8) or
+      (a.a * 255f).int64
+    )
+else:
+  func `hex`*(a: Color): int =
+    (
+      ((a.r * 255f).int shl 16) or
+      ((a.g * 255f).int shl 8) or
+      ((a.b * 255f).int)
+    )

@@ -22,15 +22,15 @@ func newVec2*: Vec2 = Vec2(x: 0f, y: 0f)
 
 # --== Operators ==-- #
 template provideOperator(operatorFunc, op: untyped): untyped =
-  func `operatorFunc`*(a, b: Vec2): Vec2 =
+  func `operatorFunc`*(a, b: Vec2): Vec2 {.inline.} =
     Vec2(x: `op`(a.x, b.x), y: `op`(a.y, b.y))
-  func `operatorFunc`*(a: float, b: Vec2): Vec2 =
+  func `operatorFunc`*(a: float, b: Vec2): Vec2 {.inline.} =
     Vec2(x: `op`(a, b.x), y: `op`(a, b.y))
-  func `operatorFunc`*(a: Vec2, b: float): Vec2 =
+  func `operatorFunc`*(a: Vec2, b: float): Vec2 {.inline.} =
     Vec2(x: `op`(a.x, b), y: `op`(a.y, b))
 
 template provideBinOperator(operatorFunc, op: untyped): untyped =
-  func `operatorFunc`*(a, b: Vec2): bool =
+  func `operatorFunc`*(a, b: Vec2): bool {.inline.} =
     `op`(a.x, b.x) and `op`(a.y, b.y)
 
 func `$`*(a: Vec2): string = fmt"vec2({a.x}, {a.y})"
@@ -65,20 +65,32 @@ provideAnyFunc(max)
 provideAnyFunc(sqrt, true)
 provideAnyFunc(abs, true)
 
-func scalar*(a, b: Vec2): float =
+func aspect*(a: Vec2): float {.inline.} =
+  ## Returns ratio of X to Y
+  a.x / a.y
+
+func scalar*(a, b: Vec2): float {.inline.} =
+  ## Scalar product of a and b
   a.x*b.x + a.y*b.y
 
 func len*(a: Vec2): float =
+  ## Vector length
   sqrt(a.x*a.x + a.y*a.y)
 
+func lenSquared*(a: Vec2): float {.inline.} =
+  ## Returns squared vector length
+  a.x*a.x + a.y*a.y
+
+func interpolate*(a, b: Vec2, t: 0f..1f): Vec2 =
+  ## Returns linear interpolated vector
+  a + (b - a)*t
+
 func angle*(a: Vec2): float =
-  let length = a.len
-  if length != 0:
-    arccos(a.x+a.y / length)
-  else:
-    0f
+  ## Vector angle
+  arctan2(a.x, a.y)
 
 func angle2*(a, b: Vec2): float =
+  ## Angle between a and b vectors
   let length = a.len
   if length != 0:
     arccos(a.scalar(b) / length)
@@ -86,16 +98,36 @@ func angle2*(a, b: Vec2): float =
     0f
 
 func dot*(a, b: Vec2): float =
+  ## Dot product
   a.len * b.len * cos(a.angle2(b))
 
-func dist2*(a, b: Vec2): float =
+func dist2*(a, b: Vec2): float {.inline.} =
+  ## Distance from a to b
   (b - a).len
 
-func normalized*(a: Vec2): Vec2 =
+func normalized*(a: Vec2): Vec2 {.inline.} =
+  ## Normalized vector
   a / a.len
 
+func isNorm*(a: Vec2): bool {.inline.} =
+  ## Returns true if a is normailized
+  a.x <= 1f and a.y <= 1f
+
 func rotated*(a: Vec2, b: float): Vec2 =
+  ## Rotate vector by angle
   Vec2(
     x: a.x*cos(b) - a.y*sin(b),
     y: a.x*sin(b) + a.y*cos(b)
+  )
+
+func tangent*(a: Vec2): Vec2 =
+  ## Returns perpendicular vector
+  a.rotated(PI/2)
+
+
+func snapped*(a, s: Vec2): Vec2 =
+  ## Rounds `a` by `s` step
+  Vec2(
+    x: s.x * floor(a.x / s.x),
+    y: s.y * floor(a.y / s.y)
   )
