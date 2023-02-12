@@ -3,7 +3,8 @@
 ]#
 import
   strformat,
-  math
+  math,
+  ./core
 
 type
   Vec2* = object
@@ -85,6 +86,13 @@ func interpolate*(a, b: Vec2, t: 0f..1f): Vec2 =
   ## Returns linear interpolated vector
   a + (b - a)*t
 
+func cubic_interpolate*(a, b, ca, cb: Vec2, t: float): Vec2 =
+  ## Returns cubic interpolated vector between `a` and `b`.
+  Vec2(
+    x: cubic_interpolate(a.x, b.x, ca.x, cb.x, t),
+    y: cubic_interpolate(a.y, b.y, ca.y, cb.y, t)
+  )
+
 func angle*(a: Vec2): float =
   ## Vector angle
   arctan2(a.x, a.y)
@@ -124,10 +132,17 @@ func tangent*(a: Vec2): Vec2 =
   ## Returns perpendicular vector
   a.rotated(PI/2)
 
-
 func snapped*(a, s: Vec2): Vec2 =
   ## Rounds `a` by `s` step
   Vec2(
     x: s.x * floor(a.x / s.x),
     y: s.y * floor(a.y / s.y)
   )
+
+func bounce*(a, b: Vec2): Vec2 =
+  ## Returns vector "bounced off" from the plane, specified by `b` normal vector.
+  a - 2*dot(a, b)*b
+
+func clamped*(a: Vec2, length: float): Vec2 =
+  ## Returns vector with maximum length
+  a * (length / a.len)

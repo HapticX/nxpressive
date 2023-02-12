@@ -4,7 +4,8 @@
 import
   strformat,
   strutils,
-  math
+  math,
+  ./core
 
 
 type
@@ -245,3 +246,16 @@ else:
       ((a.g * 255f).int shl 8) or
       ((a.b * 255f).int)
     )
+
+func interpolate*(a, b: Color, t: float): Color =
+  ## Returns linear interpolated color between `a` and `b` by `t`.
+  a + (b-a)*t
+
+func cubic_interpolate*(a, b, ca, cb: Color, t: float): Color =
+  ## Returns cubic interpolated color between `a` and `b`.
+  Color(
+    r: cubic_interpolate(a.r, b.r, ca.r, cb.r, t),
+    g: cubic_interpolate(a.g, b.g, ca.g, cb.g, t),
+    b: cubic_interpolate(a.b, b.b, ca.b, cb.b, t),
+    a: cubic_interpolate(a.a, b.a, ca.a, cb.a, t)
+  )

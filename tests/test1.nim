@@ -67,4 +67,11 @@ suite "Core":
       vec = newVec2(37f, 12f)
       snap = newVec2(5f, 5f)
     echo vec.snapped(snap)
+  
+  test "bounce":
+    let
+      vec1 = newVec2(1f, 2f)
+      vec2 = newVec2(0.5f, 0.5f)
+    
+    echo vec1.bounce(vec2)
 
