@@ -109,7 +109,7 @@ func tween*[T](a, b: Animatable[T], t: 0f..1f, easing: Easing): Animatable[T] =
         pow(2f, -20f * t + 10f) / 2f
       else:
         (2f - pow(2f, -20f * t + 10f)) / 2f
-  Animatable[T](value: a.value + (b.value - a.value) * val)
+  Animatable[T](value: a.value + ((b.value - a.value) * val))
 
 
 func tween*[T](a: Animatable[T], b: T, t: 0f..1f, easing: Easing): Animatable[T] =
