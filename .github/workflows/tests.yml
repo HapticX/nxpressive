@@ -48,8 +48,12 @@ jobs:
           # see. https://github.com/actions/virtual-environments/issues/675
           sudo sed -i 's/azure\.//' /etc/apt/sources.list
           sudo apt update -yqq
+      
       - name: Install xvfb
         run: sudo apt install -y xvfb
+      
+      - name: Install mingw
+        run: sudo apt install mingw-w64
 
       - name: Build tests
         run: |
@@ -61,6 +65,24 @@ jobs:
             nim cpp -r $file
             echo "# ---=== Testing via JS backend [$file] ===--- #"
             nim js -r $file
+            timeout 2 xvfb-run --auto-servernum --server-num=1 ./${file%%.nim} || [ $? -eq ${{ env.TIMEOUT_EXIT_STATUS }} ]
+          done
+        shell: bash
+
+      - name: Cross build tests
+        run: |
+          cd tests
+          for file in $(ls -v test*.nim); do
+            echo "# ---=== Compile for Win AMD64 [$file] ===--- #"
+            nim c -d:mingw --cpu:amd64 $file
+            echo "# ---=== Compile for Win i386 [$file] ===--- #"
+            nim c -d:mingw --cpu:i386 $file
+            echo "# ---=== Compile for Android [$file] ===--- #"
+            nim c -c --cpu:arm --os:android -d:androidNDK  --noMain:on $file
+            echo "# ---=== Compile for iOS [$file] ===--- #"
+            nim c -c --os:ios --noMain:on $file
+            echo "# ---=== Compile for Nintendo Switch [$file] ===--- #"
+            nim c -c --os:nintendoswitch --mm:orc $file
             timeout 2 xvfb-run --auto-servernum --server-num=1 ./${file%%.nim} || [ $? -eq ${{ env.TIMEOUT_EXIT_STATUS }} ]
           done
         shell: bash
