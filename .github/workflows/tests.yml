@@ -59,11 +59,11 @@ jobs:
         run: |
           cd tests
           for file in $(ls -v test*.nim); do
-            echo "# ---=== Testing via C backend [$file] ===--- #"
+            echo "# ---===    Testing via C backend [$file]    ===--- #"
             nim c -r $file
-            echo "# ---=== Testing via C++ backend [$file] ===--- #"
+            echo "# ---===    Testing via C++ backend [$file]    ===--- #"
             nim cpp -r $file
-            echo "# ---=== Testing via JS backend [$file] ===--- #"
+            echo "# ---===    Testing via JS backend [$file]    ===--- #"
             nim js -r $file
             timeout 2 xvfb-run --auto-servernum --server-num=1 ./${file%%.nim} || [ $? -eq ${{ env.TIMEOUT_EXIT_STATUS }} ]
           done
@@ -73,15 +73,15 @@ jobs:
         run: |
           cd tests
           for file in $(ls -v test*.nim); do
-            echo "# ---=== Compile for Win AMD64 [$file] ===--- #"
+            echo "# ---===    Compile for Win AMD64 [$file]    ===--- #"
             nim c -d:mingw --cpu:amd64 $file
-            echo "# ---=== Compile for Win i386 [$file] ===--- #"
+            echo "# ---===    Compile for Win i386 [$file]    ===--- #"
             nim c -d:mingw --cpu:i386 $file
-            echo "# ---=== Compile for Android [$file] ===--- #"
+            echo "# ---===    Compile for Android [$file]    ===--- #"
             nim c -c --cpu:arm --os:android -d:androidNDK  --noMain:on $file
-            echo "# ---=== Compile for iOS [$file] ===--- #"
+            echo "# ---===    Compile for iOS [$file]    ===--- #"
             nim c -c --os:ios --noMain:on $file
-            echo "# ---=== Compile for Nintendo Switch [$file] ===--- #"
+            echo "# ---===    Compile for Nintendo Switch [$file]    ===--- #"
             nim c -c --os:nintendoswitch $file
             timeout 2 xvfb-run --auto-servernum --server-num=1 ./${file%%.nim} || [ $? -eq ${{ env.TIMEOUT_EXIT_STATUS }} ]
           done
