@@ -79,6 +79,7 @@ suite "Core":
     let
       x = animatable(0f)
       y = animatable(newColor(0xFF99FF))
+      z = animatable(newVec2(1f, 5f))
     
     echo tween(x, 10f, 0.5f, LINEAR)
     echo tween(x, 10f, 0.5f, EASE_IN)
@@ -100,8 +101,9 @@ suite "Core":
     echo tween(x, 10f, 0.5f, EXPO_OUT)
     echo tween(x, 10f, 0.5f, EXPO_IN_OUT)
 
-    echo y
-    echo newColor(0x999fff)
     echo tween(y, newColor(0x999fff), 0f, CUBIC_IN)
     echo tween(y, newColor(0x999fff), 0.5f, CUBIC_IN)
     echo tween(y, newColor(0x999fff), 1f, CUBIC_IN)
+
+    echo tween(z, newVec2(78f, -0.125f), 0.5f, CIRC_IN)
+    echo tween(z, newVec2(78f, -0.125f), 0.5f, BACK_IN)
