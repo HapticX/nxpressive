@@ -107,3 +107,20 @@ suite "Core":
 
     echo tween(z, newVec2(78f, -0.125f), 0.5f, CIRC_IN)
     echo tween(z, newVec2(78f, -0.125f), 0.5f, BACK_IN)
+  
+  test "Vec3":
+    let
+      v1 = newVec3()
+      v2 = newVec3(10f)
+      v3 = newVec3(1f, 2f, 4f)
+    
+    echo v1
+    echo v2
+    echo v3
+
+    echo v2.dot(v3)
+    echo v2.cross(v3)
+
+    echo v2.rotatedX(90)
+    echo v2.rotatedY(90)
+    echo v2.rotatedZ(90)
