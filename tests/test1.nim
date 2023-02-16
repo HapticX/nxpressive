@@ -128,7 +128,16 @@ suite "Core":
   test "Basis":
     let
       b1 = newBasis()
+      b2 = newBasis(5f)
+      b3 = newBasis(5f, 4f, 2f)
     echo b1
     echo b1.pretty()
 
-    
+    echo b2.pretty()
+    echo (b2 * BasisDiagonal).pretty()
+
+    echo BasisDiagonal.determinant
+
+    echo b3.pretty()
+    echo b3.transpose().pretty()
+    echo b3.transpose().transpose() == b3

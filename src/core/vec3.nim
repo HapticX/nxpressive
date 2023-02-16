@@ -46,6 +46,16 @@ template provideBinOperator(operatorFunc, op: untyped): untyped =
 
 func `$`*(a: Vec3): string = fmt"Vec3({a.x}, {a.y}, {a.z})"
 
+func `[]`*(a: Vec3, index: int): float =
+  if index == 0:
+    a.x
+  elif index == 1:
+    a.y
+  elif index == 2:
+    a.z
+  else:
+    raise newException(IndexError, fmt"{index} is out of bounds")
+
 provideOperator(`+`, `+`)
 provideOperator(`-`, `-`)
 provideOperator(`*`, `*`)
