@@ -133,3 +133,23 @@ func transpose*(a: Basis): Basis =
     y: Vec3(x: a[0][1], y: a[1][1], z: a[2][1]),
     z: Vec3(x: a[0][2], y: a[1][2], z: a[2][2])
   )
+
+func minor*(a: Basis, x, y: int): float =
+  assert x >= 0 and x <= 2 and y >= 0 and y <= 2
+  var row1, row2: Vec3
+
+  case x:
+  of 0:
+    (row1, row2) = (a.y, a.z)
+  of 1:
+    (row1, row2) = (a.x, a.z)
+  else:
+    (row1, row2) = (a.x, a.y)
+  
+  case y:
+  of 0:
+    row1.y*row2.z - row1.z*row2.y
+  of 1:
+    row1.x*row2.z - row1.z*row2.x
+  else:
+    row1.x*row2.y - row1.y*row2.x

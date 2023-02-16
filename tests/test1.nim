@@ -130,6 +130,7 @@ suite "Core":
       b1 = newBasis()
       b2 = newBasis(5f)
       b3 = newBasis(5f, 4f, 2f)
+      b4 = newBasis(5f, 4f, 2f, 2f, 4f, 5f, 1f, 2f, 3f)
     echo b1
     echo b1.pretty()
 
@@ -141,3 +142,6 @@ suite "Core":
     echo b3.pretty()
     echo b3.transpose().pretty()
     echo b3.transpose().transpose() == b3
+
+    echo b4.pretty()
+    echo b4.minor(1, 1)
