@@ -18,6 +18,7 @@ const
 
 func newVec2*(x, y: float32): Vec2 = Vec2(x: x, y: y)
 func newVec2*(xy: float32): Vec2 = Vec2(x: xy, y: xy)
+func newVec2*(a: Vec2): Vec2 = Vec2(x: a.x, y: a.y)
 func newVec2*: Vec2 = Vec2(x: 0f, y: 0f)
 
 

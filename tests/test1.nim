@@ -124,3 +124,11 @@ suite "Core":
     echo v2.rotatedX(90)
     echo v2.rotatedY(90)
     echo v2.rotatedZ(90)
+  
+  test "Basis":
+    let
+      b1 = newBasis()
+    echo b1
+    echo b1.pretty()
+
+    

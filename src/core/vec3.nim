@@ -27,6 +27,7 @@ const
 
 func newVec3*(x, y, z: float): Vec3 = Vec3(x: x, y: y, z: z)
 func newVec3*(xyz: float): Vec3 = Vec3(x: xyz, y: xyz, z: xyz)
+func newVec3*(a: Vec3): Vec3 = Vec3(x: a.x, y: a.y, z: a.z)
 func newVec3*: Vec3 = Vec3(x: 0f, y: 0f, z: 0f)
 
 

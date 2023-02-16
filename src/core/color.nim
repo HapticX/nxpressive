@@ -29,14 +29,22 @@ func newColor*: Color =
   ## Creates a new color object with default values.
   ## Color(1f, 1f, 1f, 1f)
   Color(r: 1f, g: 1f, b: 1f, a: 1f)
-func newColor*(r, g, b: 0f..1f): Color =
+func newColor*(r, g, b: float): Color =
   ## Creates a new color object with default alpha value.
   ## Color(`r`, `g`, `b`, 1f)
   Color(r: r, g: g, b: b, a: 1)
-func newColor*(r, g, b, a: 0f..1f): Color =
+func newColor*(r, g, b, a: float): Color =
   ## Creates a new color.
   ## Color(`r`, `g`, `b`, `a`)
   Color(r: r, g: g, b: b, a: a)
+func newColor*(brightness: float): Color =
+  ## Creates a new color.
+  ## Color(`brightness`, `brightness`, `brightness`, 1f)
+  Color(r: brightness, g: brightness, b: brightness, a: 1f)
+func newColor*(a: Color): Color =
+  ## Creates a new color from other color.
+  ## Color(`brightness`, `brightness`, `brightness`, 1f)
+  Color(r: a.r, g: a.g, b: a.b, a: a.a)
 
 
 func newColor*(r, g, b: uint): Color =
