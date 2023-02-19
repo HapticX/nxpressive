@@ -135,6 +135,7 @@ func transpose*(a: Basis): Basis =
   )
 
 func minor*(a: Basis, x, y: int): float =
+  ## Calculates minor of Basis.
   assert x >= 0 and x <= 2 and y >= 0 and y <= 2
   var row1, row2: Vec3
 
@@ -153,3 +154,37 @@ func minor*(a: Basis, x, y: int): float =
     row1.x*row2.z - row1.z*row2.x
   else:
     row1.x*row2.y - row1.y*row2.x
+
+func normalized*(a: Basis): Basis {.inline.} =
+  ## Normalizes every vector of basis
+  Basis(
+    x: a.x.normalized(),
+    y: a.y.normalized(),
+    z: a.z.normalized()
+  )
+
+func normalize*(a: var Basis) =
+  ## Normalizes every vector of basis
+  a.x.normalize()
+  a.y.normalize()
+  a.z.normalize()
+
+
+func inverse*(a: Basis): Basis =
+  ## Calculates inverse basis
+  let det = a.determinant()
+  assert det != 0
+  let invDet = 1f/det
+  Basis(
+    x: Vec3(x: (a.y.y*a.z.z - a.z.y*a.y.z) * invDet, y: (a.z.x*a.y.z - a.y.x*a.z.z) * invDet, z: (a.y.x*a.z.y - a.z.x*a.y.y) * invDet),
+    y: Vec3(x: (a.z.x*a.x.z - a.x.y*a.z.z) * invDet, y: (a.x.x*a.z.z - a.x.z*a.z.x) * invDet, z: (a.z.x*a.x.y - a.x.x*a.z.y) * invDet),
+    z: Vec3(x: (a.x.y*a.y.z - a.y.y*a.x.z) * invDet, y: (a.y.x*a.x.z - a.x.x*a.y.z) * invDet, z: (a.x.x*a.y.y - a.y.x*a.x.y) * invDet),
+  )
+
+func isOrthogonal*(a: Basis): bool =
+  ## Returns `true` if the basis vectors of `b` are mutually orthogonal.
+  a.x.dot(a.y) == 0f and a.x.dot(a.z) == 0f and a.y.dot(a.z) == 0f
+
+func isOrthonormal*(a: Basis): bool =
+  ## Returns true when basis vectors of `a` are mutually ortogonal and each has unit length
+  a.isOrthogonal() and a.x.isNorm and a.y.isNorm and a.z.isNorm

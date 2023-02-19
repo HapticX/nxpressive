@@ -191,6 +191,10 @@ func normalized*(a: Vec3): Vec3 {.inline.} =
   ## Normalized vector
   a / a.len
 
+func normalize*(a: var Vec3) =
+  ## Normalizes var vector
+  a = a / a.len
+
 func isNorm*(a: Vec3): bool {.inline.} =
   ## Returns true if a is normailized
   a.x <= 1f and a.y <= 1f
@@ -202,6 +206,12 @@ func snapped*(a, s: Vec3): Vec3 =
     y: s.y * floor(a.y / s.y),
     z: s.z * floor(a.z / s.z)
   )
+
+func snap*(a: var Vec3, s: Vec3) =
+  ## Rounds `a` by `s` step.
+  a.x = s.x * floor(a.x / s.x)
+  a.y = s.y * floor(a.y / s.y)
+  a.z = s.z * floor(a.z / s.z)
 
 func bounce*(a, b: Vec3): Vec3 =
   ## Returns vector "bounced off" from the plane, specified by `b` normal vector.
