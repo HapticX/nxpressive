@@ -40,6 +40,16 @@ template provideOperator(operatorFunc, op: untyped): untyped =
   func `operatorFunc`*(a: Vec3, b: float): Vec3 {.inline.} =
     Vec3(x: `op`(a.x, b), y: `op`(a.y, b), z: `op`(a.z, b))
 
+template provideOperatorVar(operatorFunc, op: untyped): untyped =
+  func `operatorFunc`*(a: var Vec3, b: Vec3) =
+    `op`(a.x, b.x)
+    `op`(a.y, b.y)
+    `op`(a.z, b.z)
+  func `operatorFunc`*(a: var Vec3, b: float) =
+    `op`(a.x, b)
+    `op`(a.y, b)
+    `op`(a.z, b)
+
 template provideBinOperator(operatorFunc, op: untyped): untyped =
   func `operatorFunc`*(a, b: Vec3): bool {.inline.} =
     `op`(a.x, b.x) and `op`(a.y, b.y) and `op`(a.z, b.z)
@@ -60,6 +70,11 @@ provideOperator(`+`, `+`)
 provideOperator(`-`, `-`)
 provideOperator(`*`, `*`)
 provideOperator(`/`, `/`)
+
+provideOperatorVar(`+=`, `+=`)
+provideOperatorVar(`-=`, `-=`)
+provideOperatorVar(`*=`, `*=`)
+provideOperatorVar(`/=`, `/=`)
 
 provideBinOperator(`==`, `==`)
 provideBinOperator(`!=`, `!=`)
@@ -217,7 +232,7 @@ func bounce*(a, b: Vec3): Vec3 =
   ## Returns vector "bounced off" from the plane, specified by `b` normal vector.
   a - 2*dot(a, b)*b
 
-func clamped*(a: Vec3, length: float): Vec3 =
+func clamped*(a: Vec3, length: float): Vec3 {.inline.} =
   ## Returns vector with maximum length
   a * (length / a.len)
 

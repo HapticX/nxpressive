@@ -31,6 +31,14 @@ template provideOperator(operatorFunc, op: untyped): untyped =
   func `operatorFunc`*(a: Vec2, b: float): Vec2 {.inline.} =
     Vec2(x: `op`(a.x, b), y: `op`(a.y, b))
 
+template provideOperatorVar(operatorFunc, op: untyped): untyped =
+  func `operatorFunc`*(a: var Vec2, b: Vec2) =
+    `op`(a.x, b.x)
+    `op`(a.y, b.y)
+  func `operatorFunc`*(a: var Vec2, b: float) =
+    `op`(a.x, b)
+    `op`(a.y, b)
+
 template provideBinOperator(operatorFunc, op: untyped): untyped =
   func `operatorFunc`*(a, b: Vec2): bool {.inline.} =
     `op`(a.x, b.x) and `op`(a.y, b.y)
@@ -41,6 +49,11 @@ provideOperator(`+`, `+`)
 provideOperator(`-`, `-`)
 provideOperator(`*`, `*`)
 provideOperator(`/`, `/`)
+
+provideOperatorVar(`+=`, `+=`)
+provideOperatorVar(`-=`, `-=`)
+provideOperatorVar(`*=`, `*=`)
+provideOperatorVar(`/=`, `/=`)
 
 provideBinOperator(`==`, `==`)
 provideBinOperator(`!=`, `!=`)

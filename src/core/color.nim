@@ -118,6 +118,18 @@ template provideOperator(funcname, op: untyped): untyped =
       a: `op`(a.a, b)
     )
 
+template provideOperatorVar(operatorFunc, op: untyped): untyped =
+  func `operatorFunc`*(a: var Color, b: Color) =
+    `op`(a.r, b.r)
+    `op`(a.g, b.g)
+    `op`(a.b, b.b)
+    `op`(a.a, b.a)
+  func `operatorFunc`*(a: var Color, b: float) =
+    `op`(a.r, b)
+    `op`(a.g, b)
+    `op`(a.b, b)
+    `op`(a.a, b)
+
 template provideBinOperator(funcname, op: untyped): untyped =
   func `funcname`*(a, b: Color): bool =
     `op`(a.r, b.r) and
@@ -139,6 +151,11 @@ provideOperator(`*`, `*`)
 provideOperator(`-`, `-`)
 provideOperator(`+`, `+`)
 provideOperator(`/`, `/`)
+
+provideOperatorVar(`*=`, `*=`)
+provideOperatorVar(`-=`, `-=`)
+provideOperatorVar(`+=`, `+=`)
+provideOperatorVar(`/=`, `/=`)
 
 provideBinOperator(`>`, `>`)
 provideBinOperator(`<`, `<`)

@@ -102,6 +102,21 @@ template provideOperator(operatorFunc, op: untyped): untyped =
   func `operatorFunc`*(a: Basis, b: Vec3): Basis {.inline.} =
     Basis(x: `op`(a.x, b.x), y: `op`(a.y, b.y), z: `op`(a.z, b.z))
 
+
+template provideOperatorVar(operatorFunc, op: untyped): untyped =
+  func `operatorFunc`*(a: var Basis, b: Basis) =
+    `op`(a.x, b.x)
+    `op`(a.y, b.y)
+    `op`(a.z, b.z)
+  func `operatorFunc`*(a: var Basis, b: float) =
+    `op`(a.x, b)
+    `op`(a.y, b)
+    `op`(a.z, b)
+  func `operatorFunc`*(a: var Basis, b: Vec3) =
+    `op`(a.x, b.x)
+    `op`(a.y, b.y)
+    `op`(a.z, b.z)
+
 template provideBinOperator(operatorFunc, op: untyped): untyped =
   func `operatorFunc`*(a, b: Basis): bool {.inline.} =
     `op`(a.x, b.x) and `op`(a.y, b.y) and `op`(a.z, b.z)
@@ -111,6 +126,11 @@ provideOperator(`+`, `+`)
 provideOperator(`-`, `-`)
 provideOperator(`/`, `/`)
 provideOperator(`*`, `*`)
+
+provideOperatorVar(`+=`, `+=`)
+provideOperatorVar(`-=`, `-=`)
+provideOperatorVar(`/=`, `/=`)
+provideOperatorVar(`*=`, `*=`)
 
 provideBinOperator(`==`, `==`)
 provideBinOperator(`!=`, `!=`)
