@@ -10,12 +10,13 @@ import
 type
   HNodeEvent* = proc(): void
   HNode* = object of RootObj
+    is_ready*: bool
+    tag*: string
     parent*: HNodeRef
     children*: seq[HNodeRef]
-    tag*: string
     # events
-    created*: HNodeEvent
-    destroyed*: HNodeEvent
+    on_ready*: HNodeEvent
+    on_destroy*: HNodeEvent
   HNodeRef* = ref HNode
 
 
@@ -28,8 +29,9 @@ proc newHNode*(tag: string = "HNode"): HNodeRef =
   HNodeRef(
     children: @[],
     tag: tag,
-    created: default_event_handler,
-    destroyed: default_event_handler
+    is_ready: false,
+    on_ready: default_event_handler,
+    on_destroy: default_event_handler
   )
 
 
@@ -77,6 +79,17 @@ method addChild*(self: HNodeRef, args: varargs[HNodeRef]) {.base, noSideEffect.}
     self.addChild(node)
 
 
+proc destroy*(self: HNodeRef) =
+  ## Destroys node.
+  ## This calls `destroyed` callback.
+  self.on_destroy()
+  for node in self.children:
+    node.destroy()
+  if not isNil(self.parent):
+    self.parent.children.del(self.parent.childIndex(self))
+    self.parent = nil
+
+
 func iter*(self: HNodeRef): seq[HNodeRef] =
   ## Iterate all children of children
   result = @[]
@@ -95,20 +108,26 @@ func iterLvl*(self: HNodeRef, lvl: int = 1): seq[tuple[lvl: int, node: HNodeRef]
       result.add((jl, jn))
 
 
-proc destroy*(self: HNodeRef) =
-  self.destroyed()
-  for node in self.children:
-    node.destroy()
-  if not isNil(self.parent):
-    self.parent.children.del(self.parent.childIndex(self))
-    self.parent = nil
+func getByTag*(self: HNodeRef, tag: string): HNodeRef =
+  ## Returns first node by tag
+  for node in self.iter():
+    if node.tag == tag:
+      return node
+  return nil
+
+
+func `[]`*(self: HNodeRef, idx: int): HNodeRef =
+  ## Returns child at `idx` position.
+  self.children[idx]
 
 
 func `$`*(self: HNodeRef): string =
+  ## Returns string representation of HNode
   fmt"HNode({self.tag})"
 
 
 func repr*(self: HNodeRef): string =
+  ## Returns tree representation of node.
   result = fmt"HNode({self.tag})" & "\n"
   for (lvl, node) in self.iterLvl():
     let padding = "  ".repeat(lvl)
