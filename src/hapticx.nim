@@ -4,7 +4,8 @@ import
   core/vec3,
   core/animatable,
   core/basis,
-  core/hmacros
+  core/hmacros,
+  nodes/node
 
 export
   color,
@@ -12,4 +13,5 @@ export
   vec3,
   animatable,
   basis,
-  hmacros
+  hmacros,
+  node

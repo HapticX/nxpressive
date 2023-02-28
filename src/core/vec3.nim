@@ -12,9 +12,9 @@ type
   Vec3* = object
     x*, y*, z*: float
   Axis* {.pure, size: sizeof(int8).} = enum
-    AXIS_X = 0
-    AXIS_Y = 1
-    AXIS_Z = 2
+    X = 0
+    Y = 1
+    Z = 2
 
 
 const
@@ -118,21 +118,21 @@ func max_axis*(a: Vec3): Axis =
   ## Returns largest axis
   let m = max(a.x, max(a.y, a.z))
   if m == a.x:
-    AXIS_X
+    Axis.X
   elif m == a.y:
-    AXIS_Y
+    Axis.Y
   else:
-    AXIS_Z
+    Axis.Z
 
 func min_axis*(a: Vec3): Axis =
   ## Returns smallest axis
   let m = min(a.x, min(a.y, a.z))
   if m == a.x:
-    AXIS_X
+    Axis.X
   elif m == a.y:
-    AXIS_Y
+    Axis.Y
   else:
-    AXIS_Z
+    Axis.Z
 
 func inversed*(a: Vec3): Vec3 =
   ## Returns inversed vector
@@ -200,6 +200,16 @@ func rotatedY*(a: Vec3, angle: float): Vec3 {.inline.} =
 func rotatedZ*(a: Vec3, angle: float): Vec3 {.inline.} =
   ## Rotates vector `a` around z-axis by `angle`.
   rotated(a, Vec3Toward, angle)
+
+func rotated*(a: Vec3, axis: Axis, angle: float): Vec3 {.inline.} =
+  ## Rotates vector `a` around axis by `angle`.
+  case axis
+  of Axis.X:
+    a.rotatedX(angle)
+  of Axis.Y:
+    a.rotatedY(angle)
+  of Axis.Z:
+    a.rotatedZ(angle)
 
 func angle2*(a, b: Vec3): float =
   ## Calculates the angle between `a` and `b` in radians

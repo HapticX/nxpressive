@@ -67,6 +67,14 @@ func newBasis*(x1, y1, z1, x2, y2, z2, x3, y3, z3: float): Basis =
     z: Vec3(x: x3, y: y3, z: z3)
   )
 
+func newBasis*(a: Basis): Basis =
+  ## Creates a new basis from other basis.
+  Basis(
+    x: newVec3(a.x),
+    y: newVec3(a.y),
+    z: newVec3(a.z),
+  )
+
 
 
 # ---=== Operators ===--- #

@@ -12,17 +12,17 @@ type
   Color* = object
     r*, g*, b*, a*: float
   BlendMode* {.pure, size: sizeof(int8).} = enum
-    NORMAL,
-    SCREEN,
-    MULTIPLY,
-    OVERLAY,
-    ADDITION,
-    SUBSTRACT,
-    DIVIDE,
-    DIFFERENCE,
-    DARKEN,
-    LIGHTEN,
-    SOFT_LIGHT
+    Normal,
+    Screen,
+    Multiply,
+    Overlay,
+    Addition,
+    Substract,
+    Divide,
+    Diffirence,
+    Darken,
+    Lighten,
+    SoftLight
 
 
 func newColor*: Color =
@@ -187,36 +187,36 @@ provideFunc4Color(sqrt)
 provideFunc4Color(abs)
 
 
-func blend*(a, b: Color, blendMode: BlendMode = BlendMode.NORMAL): Color =
+func blend*(a, b: Color, blendMode: BlendMode = BlendMode.Normal): Color =
   ## Blends two colors
   case blendMode
-    of NORMAL:
+    of BlendMode.Normal:
       b
-    of MULTIPLY:
+    of BlendMode.Multiply:
       a*b
-    of SCREEN:
+    of BlendMode.Screen:
       1 - (1 - a)*(1 - b)
-    of OVERLAY:
+    of BlendMode.Overlay:
       if a < 0.5:
         2*a*b
       else:
         1 - 2*(1 - a)*(1 - b)
-    of ADDITION:
+    of BlendMode.Addition:
       a+b
-    of SUBSTRACT:
+    of BlendMode.Substract:
       a-b
-    of DIVIDE:
+    of BlendMode.Divide:
       a/b
-    of DIFFERENCE:
+    of BlendMode.Diffirence:
       if a > b:
         a - b
       else:
         b - a
-    of DARKEN:
+    of BlendMode.Darken:
       min(a, b)
-    of LIGHTEN:
+    of BlendMode.Lighten:
       max(a, b)
-    of SOFT_LIGHT:
+    of BlendMode.SoftLight:
       if b < 0.5:
         2*a*b + a*a*(1 - 2*b)
       else:
