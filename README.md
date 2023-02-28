@@ -9,3 +9,9 @@ experimental UI/2D engine written in Nim with ♥
 [![Testing](https://github.com/HapticX/engine/actions/workflows/tests.yml/badge.svg)](https://github.com/HapticX/engine/actions/workflows/tests.yml)
 
 </div>
+
+
+## Install
+```bash
+git clone https://github.com/HapticX/engine
+```

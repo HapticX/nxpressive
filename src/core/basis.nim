@@ -3,7 +3,8 @@
 ]#
 import
   strformat,
-  vec3
+  vec3,
+  ./exceptions
 
 
 type
@@ -87,7 +88,7 @@ func `[]`*(a: Basis, index: int): Vec3 =
   elif index == 2:
     a.z
   else:
-    raise newException(IndexDefect, fmt"{index} is out of bounds")
+    raise newException(OutOfIndexDefect, fmt"{index} is out of bounds")
 
 func `[]=`*(a: var Basis, index: int, val: Vec3): float =
   if index == 0:
@@ -97,7 +98,7 @@ func `[]=`*(a: var Basis, index: int, val: Vec3): float =
   elif index == 2:
     a.z = val
   else:
-    raise newException(IndexDefect, fmt"{index} is out of bounds")
+    raise newException(OutOfIndexDefect, fmt"{index} is out of bounds")
 
 
 template provideOperator(operatorFunc, op: untyped): untyped =

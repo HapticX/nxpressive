@@ -4,7 +4,8 @@
 import
   strformat,
   math,
-  ./core
+  ./core,
+  ./exceptions
 
 
 type
@@ -64,7 +65,7 @@ func `[]`*(a: Vec3, index: int): float =
   elif index == 2:
     a.z
   else:
-    raise newException(IndexDefect, fmt"{index} is out of bounds")
+    raise newException(OutOfIndexDefect, fmt"{index} is out of bounds")
 
 func `[]=`*(a: var Vec3, index: int, val: float): float =
   if index == 0:
@@ -74,7 +75,7 @@ func `[]=`*(a: var Vec3, index: int, val: float): float =
   elif index == 2:
     a.z = val
   else:
-    raise newException(IndexDefect, fmt"{index} is out of bounds")
+    raise newException(OutOfIndexDefect, fmt"{index} is out of bounds")
 
 provideOperator(`+`, `+`)
 provideOperator(`-`, `-`)
