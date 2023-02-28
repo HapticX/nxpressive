@@ -25,3 +25,9 @@ suite "Node":
 
     b.addChild(c)
     echo a.repr
+
+  test "event syntax":
+    let a = newHNode()
+    
+    a@ready():
+      echo 1
