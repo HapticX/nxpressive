@@ -10,8 +10,18 @@ suite "Node":
       b = newHNode("Child1")
       c = newHNode("Child2")
     
-    echo 1
     a.addChild(b, c)
-    echo 1
     echo a
-    echo 1
+    echo a.repr
+
+    b.destroy()
+    echo a.repr
+
+    a.addChild(b)
+    echo a.repr
+
+    c.addChild(b)
+    echo a.repr
+
+    b.addChild(c)
+    echo a.repr

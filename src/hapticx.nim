@@ -5,6 +5,7 @@ import
   core/animatable,
   core/basis,
   core/hmacros,
+  core/exceptions,
   nodes/node
 
 export
@@ -14,4 +15,5 @@ export
   animatable,
   basis,
   hmacros,
+  exceptions,
   node
