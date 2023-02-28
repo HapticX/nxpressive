@@ -10,7 +10,7 @@ import
 type
   Vec3* = object
     x*, y*, z*: float
-  Axis* = enum
+  Axis* {.pure, size: sizeof(int8).} = enum
     AXIS_X = 0
     AXIS_Y = 1
     AXIS_Z = 2
@@ -64,7 +64,17 @@ func `[]`*(a: Vec3, index: int): float =
   elif index == 2:
     a.z
   else:
-    raise newException(IndexError, fmt"{index} is out of bounds")
+    raise newException(IndexDefect, fmt"{index} is out of bounds")
+
+func `[]=`*(a: var Vec3, index: int, val: float): float =
+  if index == 0:
+    a.x = val
+  elif index == 1:
+    a.y = val
+  elif index == 2:
+    a.z = val
+  else:
+    raise newException(IndexDefect, fmt"{index} is out of bounds")
 
 provideOperator(`+`, `+`)
 provideOperator(`-`, `-`)
@@ -139,7 +149,7 @@ func dot*(a, b: Vec3): float {.inline.} =
   ## dot product of a and b
   a.x*b.x + a.y*b.y + a.z*b.z
 
-func len*(a: Vec3): float =
+func len*(a: Vec3): float {.inline.} =
   ## Vector length
   sqrt(a.x*a.x + a.y*a.y + a.z*a.z)
 
@@ -147,7 +157,7 @@ func lenSquared*(a: Vec3): float {.inline.} =
   ## Returns squared vector length
   a.x*a.x + a.y*a.y + a.z*a.z
 
-func interpolate*(a, b: Vec3, t: 0f..1f): Vec3 =
+func interpolate*(a, b: Vec3, t: 0f..1f): Vec3 {.inline.} =
   ## Returns linear interpolated vector
   a + (b - a)*t
 
@@ -228,7 +238,7 @@ func snap*(a: var Vec3, s: Vec3) =
   a.y = s.y * floor(a.y / s.y)
   a.z = s.z * floor(a.z / s.z)
 
-func bounce*(a, b: Vec3): Vec3 =
+func bounce*(a, b: Vec3): Vec3 {.inline.} =
   ## Returns vector "bounced off" from the plane, specified by `b` normal vector.
   a - 2*dot(a, b)*b
 

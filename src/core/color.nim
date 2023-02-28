@@ -11,7 +11,7 @@ import
 type
   Color* = object
     r*, g*, b*, a*: float
-  BlendMode* = enum
+  BlendMode* {.pure, size: sizeof(int8).} = enum
     NORMAL,
     SCREEN,
     MULTIPLY,
@@ -253,7 +253,7 @@ func `saturation`*(a: Color): float32 =
   else:
     (delta / maxValue)
 
-func `brightness`*(a: Color): float32 =
+func `brightness`*(a: Color): float32 {.inline.} =
   max(a.r, max(a.g, a.b))
 
 when not defined(js):
@@ -272,7 +272,7 @@ else:
       ((a.b * 255f).int)
     )
 
-func interpolate*(a, b: Color, t: float): Color =
+func interpolate*(a, b: Color, t: float): Color {.inline.} =
   ## Returns linear interpolated color between `a` and `b` by `t`.
   a + (b-a)*t
 

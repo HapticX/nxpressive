@@ -87,7 +87,17 @@ func `[]`*(a: Basis, index: int): Vec3 =
   elif index == 2:
     a.z
   else:
-    raise newException(IndexError, fmt"{index} is out of bounds")
+    raise newException(IndexDefect, fmt"{index} is out of bounds")
+
+func `[]=`*(a: var Basis, index: int, val: Vec3): float =
+  if index == 0:
+    a.x = val
+  elif index == 1:
+    a.y = val
+  elif index == 2:
+    a.z = val
+  else:
+    raise newException(IndexDefect, fmt"{index} is out of bounds")
 
 
 template provideOperator(operatorFunc, op: untyped): untyped =
@@ -201,10 +211,10 @@ func inverse*(a: Basis): Basis =
     z: Vec3(x: (a.x.y*a.y.z - a.y.y*a.x.z) * invDet, y: (a.y.x*a.x.z - a.x.x*a.y.z) * invDet, z: (a.x.x*a.y.y - a.y.x*a.x.y) * invDet),
   )
 
-func isOrthogonal*(a: Basis): bool =
+func isOrthogonal*(a: Basis): bool {.inline.} =
   ## Returns `true` if the basis vectors of `b` are mutually orthogonal.
   a.x.dot(a.y) == 0f and a.x.dot(a.z) == 0f and a.y.dot(a.z) == 0f
 
-func isOrthonormal*(a: Basis): bool =
+func isOrthonormal*(a: Basis): bool {.inline.} =
   ## Returns true when basis vectors of `a` are mutually ortogonal and each has unit length
   a.isOrthogonal() and a.x.isNorm and a.y.isNorm and a.z.isNorm

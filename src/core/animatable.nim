@@ -9,7 +9,7 @@ import
 type
   Animatable*[T] = object
     value*: T
-  Easing* = enum
+  Easing* {.pure, size: sizeof(int8).} = enum
     LINEAR
     EASE_IN
     EASE_OUT
@@ -52,7 +52,7 @@ func tween*[T](a, b: Animatable[T], t: float, easing: Easing): Animatable[T] =
   ## - `a` - start position;
   ## - `b` - end position;
   ## - `t` - number between 0 and 1, where 0 is start and 1 is end;
-  ## - `easing` - easing mo de
+  ## - `easing` - easing mode
   let val =
     case easing:
     of LINEAR:
@@ -180,4 +180,5 @@ func tween*[T](a: Animatable[T], b: T, t: 0f..1f, easing: Easing): Animatable[T]
 
 
 func `$`*[T](a: Animatable[T]): string =
+  ## Returns string representation
   fmt"animatable[{a.value}]"

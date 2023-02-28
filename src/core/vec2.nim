@@ -45,6 +45,22 @@ template provideBinOperator(operatorFunc, op: untyped): untyped =
 
 func `$`*(a: Vec2): string = fmt"vec2({a.x}, {a.y})"
 
+func `[]`*(a: Vec2, index: int): float =
+  if index == 0:
+    a.x
+  elif index == 1:
+    a.y
+  else:
+    raise newException(IndexDefect, fmt"{index} is out of bounds")
+
+func `[]=`*(a: var Vec2, index: int, val: float): float =
+  if index == 0:
+    a.x = val
+  elif index == 1:
+    a.y = val
+  else:
+    raise newException(IndexDefect, fmt"{index} is out of bounds")
+
 provideOperator(`+`, `+`)
 provideOperator(`-`, `-`)
 provideOperator(`*`, `*`)
@@ -88,15 +104,15 @@ func scalar*(a, b: Vec2): float {.inline.} =
   ## Scalar product of a and b
   a.x*b.x + a.y*b.y
 
-func len*(a: Vec2): float =
-  ## Vector length
+func len*(a: Vec2): float {.inline.} =
+  ## Returns length of `a` vector.
   sqrt(a.x*a.x + a.y*a.y)
 
 func lenSquared*(a: Vec2): float {.inline.} =
   ## Returns squared vector length
   a.x*a.x + a.y*a.y
 
-func interpolate*(a, b: Vec2, t: 0f..1f): Vec2 =
+func interpolate*(a, b: Vec2, t: 0f..1f): Vec2 {.inline.} =
   ## Returns linear interpolated vector
   a + (b - a)*t
 
@@ -142,7 +158,7 @@ func rotated*(a: Vec2, b: float): Vec2 =
     y: a.x*sin(b) + a.y*cos(b)
   )
 
-func tangent*(a: Vec2): Vec2 =
+func tangent*(a: Vec2): Vec2 {.inline.} =
   ## Returns perpendicular vector
   a.rotated(PI/2)
 
@@ -153,10 +169,10 @@ func snapped*(a, s: Vec2): Vec2 =
     y: s.y * floor(a.y / s.y)
   )
 
-func bounce*(a, b: Vec2): Vec2 =
+func bounce*(a, b: Vec2): Vec2 {.inline.} =
   ## Returns vector "bounced off" from the plane, specified by `b` normal vector.
   a - 2*dot(a, b)*b
 
-func clamped*(a: Vec2, length: float): Vec2 =
+func clamped*(a: Vec2, length: float): Vec2 {.inline.} =
   ## Returns vector with maximum length
   a * (length / a.len)
