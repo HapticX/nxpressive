@@ -4,7 +4,7 @@
 
 when (NimMajor, NimMinor, NimPatch) < (1, 6, 0):
   type
-    OutOfIndexDefect* = object of Error
+    OutOfIndexDefect* = object of Exception
 else:
   type
     OutOfIndexDefect* = object of Defect
