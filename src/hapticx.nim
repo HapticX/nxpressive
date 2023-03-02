@@ -8,7 +8,9 @@ import
   core/exceptions,
   core/rect,
   nodes/node,
-  nodes/scene
+  nodes/scene,
+  app/app,
+  app/environment
 
 export
   # core
@@ -22,4 +24,7 @@ export
   rect,
   # nodes
   node,
-  scene
+  scene,
+  # application
+  app,
+  environment

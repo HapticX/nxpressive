@@ -58,7 +58,7 @@ macro defineNode*(nodes: untyped): untyped =
         rec_list.add(newIdentDefs(
           postfix(param[1][0], "*"), param[1][1]
         ))
-    new_type.add(i[0])
+    new_type.add(postfix(i[0], "*"))
     new_type.add(newEmptyNode())
     new_type.add(obj_ty)
     
@@ -72,7 +72,7 @@ macro defineNode*(nodes: untyped): untyped =
       ref_type = newNimNode(nnkTypeDef)
       ref_obj_ty = newNimNode(nnkObjectTy)
       ref_ty = newNimNode(nnkRefTy)
-    ref_type.add(ident($i[0] & "Ref"))
+    ref_type.add(postfix(ident($i[0] & "Ref"), "*"))
     ref_type.add(newEmptyNode())
     ref_type.add(ref_obj_ty)
 

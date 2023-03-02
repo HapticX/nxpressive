@@ -8,8 +8,9 @@ import
   ../private/templates
 
 
-defineNode:
-  HScene(HNode)
+type
+  HSceneRef* = ref HScene
+  HScene* = object of HNode
 
 
 proc newHScene*(tag: string = "HScene"): HSceneRef =
