@@ -4,7 +4,8 @@
 import
   strformat,
   strutils,
-  ../core/exceptions
+  ../core/exceptions,
+  ../private/templates
 
 
 type
@@ -26,13 +27,7 @@ let
 
 proc newHNode*(tag: string = "HNode"): HNodeRef =
   ## Creates a new HNode with tag
-  HNodeRef(
-    children: @[],
-    tag: tag,
-    is_ready: false,
-    on_ready: default_event_handler,
-    on_destroy: default_event_handler
-  )
+  defaultNode(HNodeRef)
 
 
 func childIndex*(self, node: HNodeRef): int =

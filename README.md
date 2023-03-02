@@ -15,5 +15,5 @@ experimental UI/2D engine written in Nim with ♥
 
 ## Install
 ```bash
-git clone https://github.com/HapticX/engine
+nimble install https://github.com/HapticX/engine
 ```
