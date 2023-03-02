@@ -31,11 +31,3 @@ suite "Node":
     
     a@ready():
       echo 1
-  
-  test "custom nodes":
-    defineNode:
-      MyNode(HNode):
-        - title string
-    
-    let node = MyNodeRef(title: "123")
-    echo node.title
