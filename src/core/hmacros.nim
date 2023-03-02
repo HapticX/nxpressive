@@ -14,20 +14,21 @@ macro `@`*(node: HNodeRef, event, code: untyped): untyped =
   ##   # handle node event
   ##   discard
   ## ```
+  # Extract event name
   var event_name: string
   if event.kind == nnkCall:
     event_name = $event[0]
   elif event.kind == nnkIdent:
     event_name = $event
-  
-  event_name = event_name.toLower().replace("_", "")
+  # Ready -> on_ready
+  var evname = event_name.toLower()
+  if not evname.startsWith("on"):
+    evname = "on_" & evname
+  # ident
+  let ev = ident(evname)
 
-  case event_name:
-  of "onready", "ready":
+  case evname:
+  of "on_ready", "on_destroy":
     result = quote do:
-      `node`.on_ready = proc(): void =
-        `code`
-  of "ondestroy", "destroy":
-    result = quote do:
-      `node`.on_destroy = proc(): void =
+      `node`.`ev` = proc(): void =
         `code`

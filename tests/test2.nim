@@ -12,19 +12,19 @@ suite "Node":
     
     a.addChild(b, c)
     echo a
-    echo a.repr
+    echo ~a
 
     b.destroy()
-    echo a.repr
+    echo ~a
 
     a.addChild(b)
-    echo a.repr
+    echo ~a
 
     c.addChild(b)
-    echo a.repr
+    echo ~a
 
     b.addChild(c)
-    echo a.repr
+    echo ~a
 
   test "event syntax":
     let a = newHNode()

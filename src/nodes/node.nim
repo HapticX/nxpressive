@@ -79,6 +79,29 @@ method addChild*(self: HNodeRef, args: varargs[HNodeRef]) {.base, noSideEffect.}
     self.addChild(node)
 
 
+method insertChild*(self, other: HNodeRef, idx: int) {.base, noSideEffect.} =
+  ## Inserts new child at `idx` position
+  if self == other:
+    raise newException(SelfAdditionDefect, "Can not insert self to self node")
+
+  if self.parent == other:
+    other.parent.children.delete(other.parent.childIndex(other))
+    other.parent.children.add(self)
+    self.parent = other.parent
+    other.parent = self
+  elif not isNil(other.parent):
+    other.parent.children.delete(other.parent.childIndex(other))
+    other.parent = self
+  self.children.insert(other, idx)
+
+
+# ---=== Abstract method ===--- #
+method draw*(self: HNodeRef) {.base, error.} =
+  ## Abstract method
+  discard
+
+
+# ---=== Base functions ===--- #
 proc destroy*(self: HNodeRef) =
   ## Destroys node.
   ## This calls `destroyed` callback.
@@ -116,19 +139,69 @@ func getByTag*(self: HNodeRef, tag: string): HNodeRef =
   return nil
 
 
+func getRootNode*(self: HNodeRef): HNodeRef =
+  ## Returns root node
+  result = self
+  while not isNil(result.parent):
+    result = result.parent
+
+
+func hasChild*(self, other: HNodeRef): bool =
+  ## Returns true when `self` contains `other`
+  other.parent == self and other in self.children
+
+
+func hasParent*(self: HNodeRef): bool =
+  ## Returns true when has parent
+  not isNil(self.parent)
+
+
+func delChild*(self, child: HNodeRef) =
+  ## Deletes child and moves last child to deleted child postition.
+  ## It's O(1) operation
+  let idx = self.childIndex(child)
+  if idx < 0:
+    raise newException(OutOfIndexDefect, "Index out of bounds")
+  self.children.del(idx)
+
+
+func delChild*(self: HNodeRef, idx: int) =
+  ## Deletes child and moves last child to deleted child postition.
+  ## It's O(1) operation
+  if idx < 0:
+    raise newException(OutOfIndexDefect, "Index out of bounds")
+  self.children.del(idx)
+
+
+func deleteChild*(self, child: HNodeRef) =
+  ## Deletes child and moves all next children by one pos.
+  ## It's O(n) operation
+  let idx = self.childIndex(child)
+  if idx < 0:
+    raise newException(OutOfIndexDefect, "Index out of bounds")
+  self.children.delete(idx)
+
+
+func deleteChild*(self: HNodeRef, idx: int) =
+  ## Deletes child and moves all next children by one pos.
+  ## It's O(n) operation
+  if idx < 0:
+    raise newException(OutOfIndexDefect, "Index out of bounds")
+  self.children.delete(idx)
+
+
+# ---=== Operators ===--- #
 func `[]`*(self: HNodeRef, idx: int): HNodeRef =
   ## Returns child at `idx` position.
   self.children[idx]
-
 
 func `$`*(self: HNodeRef): string =
   ## Returns string representation of HNode
   fmt"HNode({self.tag})"
 
-
-func repr*(self: HNodeRef): string =
+func `~`*(self: HNodeRef): string =
   ## Returns tree representation of node.
-  result = fmt"HNode({self.tag})" & "\n"
+  result = $self & "\n"
   for (lvl, node) in self.iterLvl():
     let padding = "  ".repeat(lvl)
     result &= fmt"{padding}{node}" & "\n"
