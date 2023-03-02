@@ -6,7 +6,8 @@ import
   core/basis,
   core/hmacros,
   core/exceptions,
-  nodes/node
+  nodes/node,
+  nodes/scene
 
 export
   color,
@@ -16,4 +17,5 @@ export
   basis,
   hmacros,
   exceptions,
-  node
+  node,
+  scene

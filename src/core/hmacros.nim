@@ -32,3 +32,56 @@ macro `@`*(node: HNodeRef, event, code: untyped): untyped =
     result = quote do:
       `node`.`ev` = proc(): void =
         `code`
+
+
+macro defineNode*(nodes: untyped): untyped =
+  ## Provides custom node definition via specified syntax:
+  ## ```nim
+  ## defineNode:
+  ##   MyNode:
+  ##     - x float
+  ##     - y float
+  ##     - my_event proc(): void
+  ## ```
+  # nodes - nnkStmtList
+  result = newNimNode(nnkTypeSection)
+  for i in nodes.children:
+    # i - nnkCall
+    let
+      new_type = newNimNode(nnkTypeDef)
+      obj_ty = newNimNode(nnkObjectTy)
+      rec_list = newNimNode(nnkRecList)
+      inherit_from = newNimNode(nnkOfInherit)
+    if len(i) > 2:
+      for param in i[2]:
+        # - NAME TYPE
+        rec_list.add(newIdentDefs(
+          postfix(param[1][0], "*"), param[1][1]
+        ))
+    new_type.add(i[0])
+    new_type.add(newEmptyNode())
+    new_type.add(obj_ty)
+    
+    obj_ty.add(newEmptyNode())
+    obj_ty.add(inherit_from)
+    obj_ty.add(rec_list)
+    inherit_from.add(i[1])
+
+    # Ref
+    let 
+      ref_type = newNimNode(nnkTypeDef)
+      ref_obj_ty = newNimNode(nnkObjectTy)
+      ref_ty = newNimNode(nnkRefTy)
+    ref_type.add(ident($i[0] & "Ref"))
+    ref_type.add(newEmptyNode())
+    ref_type.add(ref_obj_ty)
+
+    ref_ty.add(i[0])
+
+    ref_obj_ty.add(newEmptyNode())
+    ref_obj_ty.add(ref_ty)
+    ref_obj_ty.add(newEmptyNode())
+
+    result.add(new_type)
+    result.add(ref_type)
+  echo result.repr

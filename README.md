@@ -14,6 +14,19 @@ experimental UI/2D engine written in Nim with ♥
 
 
 ## Install
+### Install dependencies
+#### Win/MacOS
+Put all of these libraries in `./nimble/bin/` folder:
+- [SDL2](https://github.com/libsdl-org/SDL)
+- [SDL2-ttf](https://github.com/libsdl-org/SDL_ttf/)
+- [SDL2-mixer](https://github.com/libsdl-org/SDL_mixer)
+- [SDL2-image](https://github.com/libsdl-org/SDL_image)
+#### Unix
+```bash
+sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+```
+
+### Install engine
 ```bash
 nimble install https://github.com/HapticX/engine
 ```
