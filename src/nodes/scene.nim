@@ -15,3 +15,7 @@ defineNode:
 proc newHScene*(tag: string = "HScene"): HSceneRef =
   ## Creates a new HScene
   defaultNode(HSceneRef)
+
+
+method draw*(self: HSceneRef) =
+  ## Draws all children

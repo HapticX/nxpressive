@@ -38,7 +38,7 @@ macro defineNode*(nodes: untyped): untyped =
   ## Provides custom node definition via specified syntax:
   ## ```nim
   ## defineNode:
-  ##   MyNode:
+  ##   MyNode(RootNode):
   ##     - x float
   ##     - y float
   ##     - my_event proc(): void
@@ -84,4 +84,3 @@ macro defineNode*(nodes: untyped): untyped =
 
     result.add(new_type)
     result.add(ref_type)
-  echo result.repr

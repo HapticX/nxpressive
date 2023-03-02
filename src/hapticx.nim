@@ -6,10 +6,12 @@ import
   core/basis,
   core/hmacros,
   core/exceptions,
+  core/rect,
   nodes/node,
   nodes/scene
 
 export
+  # core
   color,
   vec2,
   vec3,
@@ -17,5 +19,7 @@ export
   basis,
   hmacros,
   exceptions,
+  rect,
+  # nodes
   node,
   scene
