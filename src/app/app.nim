@@ -3,6 +3,7 @@
 ]#
 import
   os,
+  ../core/core,
   ../core/vec2,
   ../core/exceptions,
   ../nodes/scene,
@@ -111,7 +112,10 @@ proc display(app: App) =
 
   glFlush()
   app.window.glSwapWindow()
-  os.sleep(app.env.delay.int)
+  when defined(js):
+    jsSleep(app.env.delay.int)
+  else:
+    os.sleep(app.env.delay.int)
 
 
 proc run*(app: var App) =
