@@ -91,7 +91,7 @@ method insertChild*(self, other: HNodeRef, idx: int) {.base, noSideEffect.} =
 
 
 # ---=== Abstract method ===--- #
-method draw*(self: HNodeRef) {.base, error.} =
+method draw*(self: HNodeRef) {.base.} =
   ## Abstract method
   discard
 

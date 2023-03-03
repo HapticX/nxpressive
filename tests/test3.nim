@@ -5,4 +5,9 @@ import
 
 suite "App":
   test "Initialize":
-    let app = newApp("HapticX")
+    var
+      app = newApp("HapticX")
+      scene = newHScene()
+    
+    app.main = scene
+    app.run()

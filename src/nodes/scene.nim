@@ -20,3 +20,5 @@ proc newHScene*(tag: string = "HScene"): HSceneRef =
 
 method draw*(self: HSceneRef) =
   ## Draws all children
+  for node in self.iter():
+    node.draw()
