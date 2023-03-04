@@ -1,7 +1,7 @@
 ## A simple library to load images of various formats as SDL surfaces.
 
 
-import sdl2
+import ../sdl2
 
 when not defined(SDL_Static):
   when defined(windows):

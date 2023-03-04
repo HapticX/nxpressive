@@ -21,7 +21,7 @@
 
 ## Access to the raw audio mixing buffer for the SDL library.
 
-import sdl2
+import ../sdl2
 
 
 type

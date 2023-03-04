@@ -32,8 +32,9 @@
 ## * (optional) Free the effect with `destroyEffect proc<#destroyEffect,HapticPtr,cint>`_.
 ## * Close the haptic device with `close proc<#close,HapticPtr>`_.
 
-import "../sdl2"
-import "joystick"
+import
+  ../sdl2,
+  ./joystick
 
 
 type

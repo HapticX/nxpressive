@@ -41,7 +41,7 @@ freely, subject to the following restrictions:
 ## If you would like to receive joystick updates while the application
 ## is in the background, you should set the following hint before calling
 ## `init()`: `SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS`
-import "../sdl2"
+import ../sdl2
 
 
 # The joystick structure used to identify an SDL joystick

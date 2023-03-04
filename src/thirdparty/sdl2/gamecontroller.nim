@@ -30,8 +30,9 @@ discard """
 ## is in the background, you should set the following hint before calling
 ## init(): SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS
 
-import "../sdl2"
-import "joystick"
+import
+  ../sdl2,
+  ./joystick
 
 
 type
