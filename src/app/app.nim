@@ -3,8 +3,11 @@
 ]#
 import
   os,
+  unicode,
+  strutils,
   ../core/core,
   ../core/vec2,
+  ../core/input,
   ../core/exceptions,
   ../nodes/scene,
   ../thirdparty/sdl2,
@@ -78,8 +81,10 @@ func title*(app: App): string =
   app.title
 
 
-func `title=`*(app: var App): string =
+func `title=`*(app: var App, new_title: string): string =
   ## Changes app title
+  app.title = new_title
+  app.window.setTitle(new_title)
 
 
 func size*(app: App): Vec2 =
@@ -87,12 +92,20 @@ func size*(app: App): Vec2 =
   Vec2(x: app.w.float, y: app.h.float)
 
 
-func resize*(app: var App, w: cint, h: cint) =
+proc resize*(app: var App, w: cint, h: cint) =
   ## Resizes window
+  app.window.setSize(w, h)
+  app.w = w
+  app.h = h
+  reshape(w, h)
 
 
-func resize*(app: var App, new_size: Vec2) =
+proc resize*(app: var App, new_size: Vec2) =
   ## Resizes window
+  app.window.setSize(new_size.x.cint, new_size.y.cint)
+  app.w = new_size.x.cint
+  app.h = new_size.y.cint
+  reshape(app.w, app.h)
 
 
 func quit*(app: var App) =
@@ -119,6 +132,53 @@ proc display(app: App) =
     os.sleep(app.env.delay.int)
 
 
+template check(event, condition, conditionelif: untyped): untyped =
+  if last_event.kind == `event` and `condition`:
+    press_state = 2
+  elif `conditionelif`:
+    press_state = 1
+  else:
+    press_state = 0
+
+{.push cdecl.}
+proc keyboard(app: App, key: cint, pressed: bool) =
+  check(InputEventType.Keyboard, last_event.pressed, true)
+  let k = $Rune(key)
+  if pressed:
+    pressed_keys.add(key)
+  else:
+    for i in pressed_keys.low..pressed_keys.high:
+      if pressed_keys[i] == key:
+        pressed_keys.del(i)
+        break
+  last_event.kind = InputEventType.Keyboard
+  last_event.key = k
+  last_event.key_int = key
+  last_event.pressed = pressed
+
+proc textinput(app: App, ev: TextInputEventPtr) =
+  last_event.kind = InputEventType.Text
+  last_event.key = toRunes(join(ev.text))[0].toUTF8()
+{.pop.}
+
+
+proc handleEvent(app: var App) =
+  var event = defaultEvent
+
+  while sdl2.pollEvent(event):
+    case event.kind
+    of QuitEvent:
+      app.running = false
+    of KeyDown:
+      keyboard(app, evKeyboard(event).keysym.sym, true)
+    of KeyUp:
+      keyboard(app, evKeyboard(event).keysym.sym, false)
+    of TextInput:
+      textinput(app, evTextInput(event))
+    else:
+      discard
+
+
 proc run*(app: var App) =
   ## Runs app and launches the main scene
   if isNil(app.main):
@@ -129,7 +189,9 @@ proc run*(app: var App) =
   when defined(debug):
     echo "App started"
   
+  # Main app loop
   while app.running:
+    app.handleEvent()
     app.display()
 
   glDeleteContext(app.context)

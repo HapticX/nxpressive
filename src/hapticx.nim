@@ -7,6 +7,7 @@ import
   core/hmacros,
   core/exceptions,
   core/rect,
+  core/input,
   nodes/node,
   nodes/scene,
   app/app,
@@ -22,6 +23,7 @@ export
   hmacros,
   exceptions,
   rect,
+  input,
   # nodes
   node,
   scene,
