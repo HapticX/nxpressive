@@ -18,6 +18,7 @@ It's simple to use and have a lot of sugar in syntax :eyes:.
 
 ### Features :sparkles:
 - C/Cpp/ObjC/JS backends support;
+- Support earlier versions (`1.0.0` and above);
 - Event handling via `@` macro;
 
 
