@@ -5,7 +5,7 @@ import
   strformat,
   strutils,
   math,
-  ./core
+  ./hmath
 
 
 type
@@ -23,6 +23,21 @@ type
     Darken,
     Lighten,
     SoftLight
+
+
+const
+  TransparentClr* = Color(r: 0f, g: 0f, b: 0f, a: 0f)
+  WhiteClr* = Color(r: 1f, g: 1f, b: 1f, a: 1f)
+  BlackClr* = Color(r: 0f, g: 0f, b: 0f, a: 1f)
+  RedClr* = Color(r: 1f, g: 0f, b: 0f, a: 1f)
+  GreenClr* = Color(r: 0f, g: 1f, b: 0f, a: 1f)
+  BlueClr* = Color(r: 0f, g: 0f, b: 1f, a: 1f)
+  CyanClr* = Color(r: 0f, g: 1f, b: 1f, a: 1f)
+  GrayClr* = Color(r: 0.75f, g: 0.75f, b: 0.75f, a: 1f)
+  PurpleClr* = Color(r: 0.63f, g: 0.13f, b: 0.94f, a: 1f)
+  RebeccaPurpleClr* = Color(r: 0.4f, g: 0.2f, b: 0.6f, a: 1f)
+  MaroonClr* = Color(r: 0.69f, g: 0.19f, b: 0.38f, a: 1f)
+  OrangeClr* = Color(r: 1f, g: 0.65, b: 0f, a: 1f)
 
 
 func newColor*: Color =

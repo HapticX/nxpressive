@@ -4,7 +4,7 @@
 import
   strformat,
   math,
-  ./core,
+  ./hmath,
   ./exceptions
 
 
