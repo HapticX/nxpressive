@@ -54,8 +54,8 @@ jobs:
       - name: Install xvfb
         run: sudo apt install -y xvfb
       
-      - name: Install mingw
-        run: sudo apt install -y mingw-w64 gobjc++-mingw-w64
+      - name: Install mingw and objective C
+        run: sudo apt install -y mingw-w64 gobjc gnustep gnustep-devel
       
       - name: Install sdl2
         run: sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
