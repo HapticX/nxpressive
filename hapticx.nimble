@@ -2,7 +2,7 @@
 name = "hapticx"
 description = "2D/UI Engine written with love"
 author = "HapticX"
-version = "0.0.3"
+version = "0.1.0"
 license = "GNU GPLv3"
 srcDir = "src"
 

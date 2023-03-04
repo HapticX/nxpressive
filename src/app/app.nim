@@ -11,6 +11,8 @@ import
   ../core/exceptions,
   ../nodes/scene,
   ../thirdparty/sdl2,
+  ../thirdparty/sdl2/gamecontroller,
+  ../thirdparty/sdl2/joystick,
   ../thirdparty/opengl,
   ./environment
 
@@ -88,6 +90,14 @@ func `title=`*(app: var App, new_title: string): string =
   app.window.setTitle(new_title)
 
 
+func hasScene*(app: App, tag: string): bool =
+  ## Returns true when app contains scene with `tag`
+  for scene in app.scenes:
+    if scene.tag == tag:
+      return true
+  false
+
+
 func goTo*(app: var App, tag: string) =
   ## Goes to available scene
   for s in app.scenes:
@@ -155,6 +165,7 @@ proc display(app: App) =
 
 
 template check(event, condition, conditionelif: untyped): untyped =
+  ## Checks input event and changes press state
   if last_event.kind == `event` and `condition`:
     press_state = 2
   elif `conditionelif`:
@@ -181,10 +192,51 @@ proc keyboard(app: App, key: cint, pressed: bool) =
 proc textinput(app: App, ev: TextInputEventPtr) =
   last_event.kind = InputEventType.Text
   last_event.key = toRunes(join(ev.text))[0].toUTF8()
+
+proc mousebutton(app: App, btn, x, y: cint, pressed: bool) =
+  check(InputEventType.Mouse, last_event.pressed and pressed, pressed)
+  last_event.kind = InputEventType.Mouse
+  last_event.pressed = pressed
+  last_event.x = x.float
+  last_event.y = y.float
+
+proc wheel(app: App, x, y: cint) =
+  check(InputEventType.Wheel, false, false)
+  last_event.kind = InputEventType.Wheel
+  last_event.xrel = x.float
+  last_event.yrel = y.float
+
+proc motion(app: App, x, y, xrel, yrel: cint) =
+  last_event.kind = InputEventType.Motion
+  last_event.x = x.float
+  last_event.y = y.float
+  last_event.xrel = xrel.float
+  last_event.yrel = yrel.float
+
+proc joyaxismotion(app: App, axis: uint8, which: int, val: int16) =
+  last_event.kind = InputEventType.JAxisMotion
+  last_event.axis = axis
+  last_event.val = val.float
+
+proc joyhatmotion(app: App, axis: uint8, which: int) =
+  last_event.kind = InputEventType.JHatMotion
+  last_event.axis = axis
+
+proc joybutton(app: App, button_index: cint, pressed: bool) =
+  check(InputEventType.JButton, last_event.pressed and pressed, pressed)
+  last_event.kind = InputEventType.JButton
+  last_event.button_index = button_index
+  last_event.pressed = pressed
 {.pop.}
 
 
 proc handleEvent(app: var App) =
+  # Handle joysticks
+  var joystick: JoystickPtr
+  discard joystickEventState(SDL_ENABLE)
+  joystick = joystickOpen(0)
+
+  # Handle events
   var event = defaultEvent
 
   while sdl2.pollEvent(event):
@@ -197,6 +249,30 @@ proc handleEvent(app: var App) =
       keyboard(app, evKeyboard(event).keysym.sym, false)
     of TextInput:
       textinput(app, evTextInput(event))
+    of MouseButtonDown:
+      let ev = evMouseButton(event)
+      mousebutton(app, ev.button.cint, ev.x, ev.y, true)
+    of MouseButtonUp:
+      let ev = evMouseButton(event)
+      mousebutton(app, ev.button.cint, ev.x, ev.y, false)
+    of MouseWheel:
+      let ev = evMouseWheel(event)
+      wheel(app, ev.x, ev.y)
+    of MouseMotion:
+      let ev = evMouseMotion(event)
+      motion(app, ev.x, ev.y, ev.xrel, ev.yrel)
+    of JoyAxisMotion:
+      let ev = EvJoyAxis(event)
+      joyaxismotion(app, ev.axis, ev.which, ev.value)
+    of JoyButtonDown:
+      let ev = EvJoyButton(event)
+      joybutton(app, ev.button.cint, true)
+    of JoyButtonUp:
+      let ev = EvJoyButton(event)
+      joybutton(app, ev.button.cint, false)
+    of JoyHatMotion:
+      let ev = EvJoyHat(event)
+      joyhatmotion(app, ev.hat, ev.which)
     else:
       discard
 

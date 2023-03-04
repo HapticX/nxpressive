@@ -14,20 +14,23 @@ type
     Wheel,
     Keyboard,
     Text,
+    JAxisMotion,
+    JButton,
+    JHatMotion,
     Unknown
 
   InputEvent* = object
     kind*: InputEventType
-    x*, y*, xrel*, yrel*: float
-    key_int*: cint
-    button_index*: cint
+    x*, y*, xrel*, yrel*, val*: float
+    axis*: uint8
+    key_int*, button_index*: cint
     key*: string
     pressed*: bool
 
   InputAction* = object
     kind*: InputEventType
-    key_int*: cint
-    button_index*: cint
+    axis*: uint8
+    key_int*, button_index*: cint
     name*, key*: string
 
 
@@ -36,12 +39,14 @@ var
   pressed_keys*: seq[cint] = @[]
   press_state*: cint = 0
   last_event* = InputEvent()
-  mouse_pressed = false
 
 
 {.push inline.}
 func isInputEventUnknown*(a: InputEvent): bool = a.kind == InputEventType.Unknown
 func isInputEventKeyboard*(a: InputEvent): bool = a.kind == InputEventType.Keyboard
+func isInputEventJoyAxisMotion*(a: InputEvent): bool = a.kind == InputEventType.JAxisMotion
+func isInputEventJoyHatMotion*(a: InputEvent): bool = a.kind == InputEventType.JHatMotion
+func isInputEventJoyButton*(a: InputEvent): bool = a.kind == InputEventType.JButton
 func isInputEventMouse*(a: InputEvent): bool = a.kind == InputEventType.Mouse
 func isInputEventTouch*(a: InputEvent): bool = a.kind == InputEventType.Touch
 func isInputEventMotion*(a: InputEvent): bool = a.kind == InputEventType.Motion
@@ -56,6 +61,12 @@ proc regKeyAction*(name: string, key: cint) =
   actions.add(InputAction(kind: InputEventType.Keyboard, name: name, key_int: key))
 proc regTouchAction*(name: string) =
   actions.add(InputAction(kind: InputEventType.Touch, name: name))
+proc regJoyAxisMotion*(name: string, axis: uint8) =
+  actions.add(InputAction(kind: InputEventType.JAxisMotion, name: name, axis: axis))
+proc regJoyHatMotion*(name: string, axis: uint8) =
+  actions.add(InputAction(kind: InputEventType.JHatMotion, name: name, axis: axis))
+proc regJoyButton*(name: string, button_index: cint) =
+  actions.add(InputAction(kind: InputEventType.JButton, name: name, button_index: button_index))
 {.pop.}
 
 
@@ -64,7 +75,10 @@ proc isActionJustPressed*(name: string): bool =
   for action in actions:
     if action.name == name and press_state == 0:
       if action.kind == InputEventType.Mouse and
-         action.button_index == last_event.button_index and mouse_pressed and press_state == 0:
+         action.button_index == last_event.button_index and press_state == 0:
+        return true
+      elif action.kind == InputEventType.JButton and
+           action.button_index == last_event.button_index and press_state == 0:
         return true
       elif action.kind == InputEventType.Touch and action.kind == last_event.kind:
         return true
@@ -80,7 +94,10 @@ proc isActionPressed*(name: string): bool =
   for action in actions:
     if action.name == name:
       if action.kind == InputEventType.Mouse and
-         action.button_index == last_event.button_index and mouse_pressed:
+         action.button_index == last_event.button_index:
+        return true
+      elif action.kind == InputEventType.JButton and
+           action.button_index == last_event.button_index:
         return true
       elif action.kind == InputEventType.Touch and press_state > 0:
         return true
@@ -94,7 +111,10 @@ proc isActionReleased*(name: string): bool =
   for action in actions:
     if action.name == name:
       if action.kind == InputEventType.Mouse and last_event.kind in [InputEventType.Mouse, InputEventType.Motion] and
-         action.button_index == last_event.button_index and not mouse_pressed and press_state == 0:
+         action.button_index == last_event.button_index and press_state == 0:
+          return true
+      elif action.kind == InputEventType.JButton and last_event.kind == InputEventType.JButton and
+         action.button_index == last_event.button_index and press_state == 0:
           return true
       elif action.kind == InputEventType.Keyboard and last_event.kind == action.kind and press_state == 0:
         if action.key == $Rune(last_event.key_int) or action.key == last_event.key or action.key_int == last_event.key_int:
