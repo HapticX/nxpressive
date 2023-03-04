@@ -23,6 +23,9 @@ It's simple to use and have a lot of sugar in syntax :eyes:.
 - Support `OpenGL`/`Vulkan` API;
 - Event handling via `@` macro;
 
+## Why Nim? :crown:
+It's simple to use and has flexible syntax :smiley:
+
 
 ## Install :inbox_tray:
 ### Dependencies
