@@ -13,6 +13,13 @@ experimental UI/2D engine written in Nim with ♥
 
 </div>
 
+## Why HapticX?
+It's simple to use and have a lot of sugar in syntax :eyes:.
+
+### Features
+- C/Cpp/ObjC/JS backends support;
+- Event handling via `@` macro;
+
 
 ## Install
 ### Install dependencies

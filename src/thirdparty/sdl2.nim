@@ -925,12 +925,12 @@ const SDL_WINDOWPOS_CENTERED*: cint = SDL_WINDOWPOS_CENTERED_DISPLAY(0)
 template SDL_WINDOWPOS_ISCENTERED*(X: cint): bool = (((X) and 0xFFFF0000) == SDL_WINDOWPOS_CENTERED_MASK)
 
 template evConv(name, name2, ptype: untyped; valid: openarray[EventType]): untyped =
-  proc `name`*(event: Event): ptype =
+  proc `name`*(event: var Event): ptype =
     assert event.kind in valid
-    return cast[ptype](unsafeAddr event)
-  proc `name2`*(event: Event): ptype =
+    return cast[ptype](addr event)
+  proc `name2`*(event: var Event): ptype =
     assert event.kind in valid
-    return cast[ptype](unsafeAddr event)
+    return cast[ptype](addr event)
 
 evConv(evWindow, window, WindowEventPtr, [WindowEvent])
 evConv(evKeyboard, key, KeyboardEventPtr, [KeyDown, KeyUP])
