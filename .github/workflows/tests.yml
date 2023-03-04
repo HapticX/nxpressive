@@ -55,7 +55,7 @@ jobs:
         run: sudo apt install -y xvfb
       
       - name: Install mingw
-        run: sudo apt install -y mingw-w64
+        run: sudo apt install -y mingw-w64 gobjc++-mingw-w64
       
       - name: Install sdl2
         run: sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
@@ -68,8 +68,23 @@ jobs:
             nim c $file
             echo "# ---===    Testing via C++ backend [$file]    ===--- #"
             nim cpp $file
+            echo "# ---===    Testing via ObjC backend [$file]    ===--- #"
+            nim objc $file
             echo "# ---===    Testing via JS backend [$file]    ===--- #"
             nim js --noMain --app:lib $file
+          done
+        shell: bash
+
+      - name: Build tests via Vulkan
+        run: |
+          cd tests
+          for file in $(ls -v test*.nim); do
+            echo "# ---===    Testing via C backend [$file]    ===--- #"
+            nim c -d:vulkan $file
+            echo "# ---===    Testing via C++ backend [$file]    ===--- #"
+            nim cpp -d:vulkan $file
+            echo "# ---===    Testing via ObjC backend [$file]    ===--- #"
+            nim objc -d:vulkan $file
           done
         shell: bash
 

@@ -13,14 +13,24 @@ import
   ../thirdparty/sdl2/image,
   ../thirdparty/sdl2/joystick,
   ../thirdparty/sdl2,
-  ../thirdparty/opengl,
   ./environment
+
+when defined(vulkan):
+  import ../thirdparty/vulkan
+else:
+  import ../thirdparty/opengl
+
 
 
 type
   App* = object
+    when defined(vulkan):
+      instance: VKInstance
+      create_info: VkInstanceCreateInfo
+      app_info: VkApplicationInfo
+    else:
+      context: GlContextPtr
     current, main*: HSceneRef
-    context: GlContextPtr
     window: WindowPtr
     paused*: bool
     running: bool
@@ -33,16 +43,23 @@ type
 proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App =
   ## Initializes the new app with specified title and size
   once:
-    # Init SDL2 and OpenGL
-    when not defined(android) and not defined(ios) and not defined(useGlew) and not defined(js):
-      loadExtensions()
-      discard captureMouse(True32)
+    # Set up SDL 2
+    discard captureMouse(True32)
     discard sdl2.init(INIT_EVERYTHING)
-    # Set up GL attrs
-    discard glSetAttribute(SDL_GL_DOUBLEBUFFER, 1)
-    discard glSetAttribute(SDL_GL_GREEN_SIZE, 6)
-    discard glSetAttribute(SDL_GL_RED_SIZE, 5)
-    discard glSetAttribute(SDL_GL_BLUE_SIZE, 5)
+  
+    when defined(vulkan):
+      # Initialize Vulkan
+      if not defined(android) and not defined(ios) and not defined(js):
+        vulkan.vkPreload()
+    elif not defined(android) and not defined(ios) and not defined(js):
+      # Initialize OpenGL
+      loadExtensions()
+    when not defined(vulkan):
+      # Set up GL attrs
+      discard glSetAttribute(SDL_GL_DOUBLEBUFFER, 1)
+      discard glSetAttribute(SDL_GL_GREEN_SIZE, 6)
+      discard glSetAttribute(SDL_GL_RED_SIZE, 5)
+      discard glSetAttribute(SDL_GL_BLUE_SIZE, 5)
   result = App(
     title: title,
     w: width,
@@ -55,28 +72,51 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
     current: nil,
     main: nil
   )
+  when defined(vulkan):
+    let flags = SDL_WINDOW_VULKAN
+  else:
+    let flags = SDL_WINDOW_OPENGL
   let window = createWindow(
     title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-    SDL_WINDOW_SHOWN or SDL_WINDOW_OPENGL or SDL_WINDOW_RESIZABLE or SDL_WINDOW_ALLOW_HIGHDPI or
+    SDL_WINDOW_SHOWN or flags or SDL_WINDOW_RESIZABLE or SDL_WINDOW_ALLOW_HIGHDPI or
     SDL_WINDOW_FOREIGN or SDL_WINDOW_INPUT_FOCUS or SDL_WINDOW_MOUSE_FOCUS
   )
   result.window = window
-  result.context = window.glCreateContext()
 
-  glShadeModel(GL_SMOOTH)
-  glClear(GL_COLOR_BUFFER_BIT)
-  glEnable(GL_COLOR_MATERIAL)
-  glMaterialf(GL_FRONT, GL_SHININESS, 15)
+  when defined(vulkan):
+    result.app_info = newVkApplicationInfo(
+      pApplicationName = "HapticX engine", pEngineName = "HapticX",
+      applicationVersion = 1, engineVersion = vkMakeVersion(0, 1, 5),
+      apiVersion = vkMakeVersion(0, 1, 5)
+    )
+    result.create_info = newVkInstanceCreateInfo(
+      pApplicationInfo = addr result.app_info,
+      enabledLayerCount = 0,
+      ppEnabledLayerNames = nil,
+      enabledExtensionCount = 0,
+      ppEnabledExtensionNames = nil
+    )
+    if vkCreateInstance(addr result.create_info, nil, addr result.instance) != VK_SUCCESS:
+      raise newException(VkInitDefect, "Error when trying to initialize vulkan")
+  else:
+    result.context = window.glCreateContext()
+    glShadeModel(GL_SMOOTH)
+    glClear(GL_COLOR_BUFFER_BIT)
+    glEnable(GL_COLOR_MATERIAL)
+    glMaterialf(GL_FRONT, GL_SHININESS, 15)
 
 
 proc reshape*(width, height: cint) =
   ## Computes an aspect ratio of the new window size
-  glViewport(0, 0, width, height)
+  when defined(vulkan):
+    discard
+  else:
+    glViewport(0, 0, width, height)
 
-  glMatrixMode(GL_PROJECTION)
-  glLoadIdentity()
-  glFrustumf(-width.float/2f, width.float/2f, -height.float/2f, height.float/2f, 1.5f, 20f)
-  glMatrixMode(GL_MODELVIEW)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glFrustumf(-width.float/2f, width.float/2f, -height.float/2f, height.float/2f, 1.5f, 20f)
+    glMatrixMode(GL_MODELVIEW)
 
 
 func title*(app: App): string =
@@ -271,16 +311,22 @@ proc handleEvent(app: var App) =
 proc display(app: App) =
   ## Displays current scene
   let bg = app.env.background_color
-  glClearColor(bg.r, bg.g, bg.b, bg.a)
-  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-  glEnable(GL_BLEND)
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-  glLoadIdentity()
+  when defined(vulkan):
+    discard
+  else:
+    glClearColor(bg.r, bg.g, bg.b, bg.a)
+    glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    glLoadIdentity()
 
   app.current.draw()
 
-  glFlush()
-  app.window.glSwapWindow()
+  when defined(vulkan):
+    discard
+  else:
+    glFlush()
+    app.window.glSwapWindow()
   when defined(js):
     jsSleep(app.env.delay.int)
   else:
@@ -306,6 +352,9 @@ proc run*(app: var App) =
 
   app.current.exit()
 
-  glDeleteContext(app.context)
+  when defined(vulkan):
+    vkDestroyInstance(app.instance)
+  else:
+    glDeleteContext(app.context)
   destroy(app.window)
   sdl2.quit()
