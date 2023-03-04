@@ -353,7 +353,7 @@ proc run*(app: var App) =
   app.current.exit()
 
   when defined(vulkan):
-    vkDestroyInstance(app.instance)
+    vkDestroyInstance(app.instance, nil)
   else:
     glDeleteContext(app.context)
   destroy(app.window)
