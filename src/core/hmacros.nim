@@ -22,13 +22,15 @@ macro `@`*(node: HNodeRef, event, code: untyped): untyped =
     event_name = $event
   # Ready -> on_ready
   var evname = event_name.toLower()
-  if not evname.startsWith("on"):
+  if not evname.startsWith("on_"):
     evname = "on_" & evname
+  elif evname.startsWith("on"):
+    evname = "on_" & evname[2..^1]
   # ident
   let ev = ident(evname)
 
   case evname:
-  of "on_ready", "on_destroy":
+  of "on_ready", "on_destroy", "on_enter", "on_exit":
     result = quote do:
       `node`.`ev` = proc(): void =
         `code`

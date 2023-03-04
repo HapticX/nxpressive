@@ -4,7 +4,9 @@
 import
   strformat,
   strutils,
+  ../core/input,
   ../core/exceptions,
+  ../core/enums,
   ../private/templates
 
 
@@ -12,12 +14,15 @@ type
   HNodeEvent* = proc(): void
   HNode* = object of RootObj
     is_ready*: bool
+    pause_behavior*: PauseBehavior
     tag*: string
     parent*: HNodeRef
     children*: seq[HNodeRef]
     # events
-    on_ready*: HNodeEvent
-    on_destroy*: HNodeEvent
+    on_ready*: HNodeEvent  ## Calls when node is entered and ready
+    on_destroy*: HNodeEvent  ## Calls when node is destroyed
+    on_enter*: HNodeEvent  ## Calls when entered into scene
+    on_exit*: HNodeEvent  ## Calls when exited from scene
   HNodeRef* = ref HNode
 
 
@@ -92,7 +97,13 @@ method insertChild*(self, other: HNodeRef, idx: int) {.base, noSideEffect.} =
 
 # ---=== Abstract method ===--- #
 method draw*(self: HNodeRef) {.base.} =
-  ## Abstract method
+  ## Abstract method for drawing
+  if self.is_ready:
+    self.on_ready()
+    self.is_ready = false
+
+method handleEvent*(self: HNodeRef, event: InputEvent) {.base.} =
+  ## Abstract method for handling events
   discard
 
 

@@ -1,9 +1,7 @@
 #[
   Provides input events
 ]#
-import
-  unicode,
-  ../thirdparty/sdl2
+import unicode
 
 
 type

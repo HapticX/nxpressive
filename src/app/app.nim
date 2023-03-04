@@ -10,9 +10,9 @@ import
   ../core/input,
   ../core/exceptions,
   ../nodes/scene,
-  ../thirdparty/sdl2,
-  ../thirdparty/sdl2/gamecontroller,
+  ../thirdparty/sdl2/image,
   ../thirdparty/sdl2/joystick,
+  ../thirdparty/sdl2,
   ../thirdparty/opengl,
   ./environment
 
@@ -37,7 +37,7 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
     when not defined(android) and not defined(ios) and not defined(useGlew) and not defined(js):
       loadExtensions()
       discard captureMouse(True32)
-    discard init(INIT_EVERYTHING)
+    discard sdl2.init(INIT_EVERYTHING)
     # Set up GL attrs
     discard glSetAttribute(SDL_GL_DOUBLEBUFFER, 1)
     discard glSetAttribute(SDL_GL_GREEN_SIZE, 6)
@@ -90,6 +90,12 @@ func `title=`*(app: var App, new_title: string): string =
   app.window.setTitle(new_title)
 
 
+func `icon=`*(app: var App, icon_path: cstring) =
+  ## Changes app icon if available
+  let icon = cast[SurfacePtr](image.load(icon_path))
+  app.window.setIcon(icon)
+
+
 func hasScene*(app: App, tag: string): bool =
   ## Returns true when app contains scene with `tag`
   for scene in app.scenes:
@@ -98,20 +104,24 @@ func hasScene*(app: App, tag: string): bool =
   false
 
 
-func goTo*(app: var App, tag: string) =
+proc goTo*(app: var App, tag: string) =
   ## Goes to available scene
   for s in app.scenes:
     if s.tag == tag:
       app.scene_stack.add(s)
+      app.current.exit()
       app.current = s
+      app.current.enter()
       break
 
 
-func goBack*(app: var App) =
+proc goBack*(app: var App) =
   ## Goes back in scene stack
   assert app.scene_stack.len > 0
   discard app.scene_stack.pop()
+  app.current.exit()
   app.current = app.scene_stack[^1]
+  app.current.enter()
 
 
 func clearSceneStack*(app: var App) =
@@ -143,25 +153,6 @@ proc resize*(app: var App, new_size: Vec2) =
 func quit*(app: var App) =
   ## Quits from app
   app.running = false
-
-
-proc display(app: App) =
-  ## Displays current scene
-  let bg = app.env.background_color
-  glClearColor(bg.r, bg.g, bg.b, bg.a)
-  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-  glEnable(GL_BLEND)
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-  glLoadIdentity()
-
-  app.current.draw()
-
-  glFlush()
-  app.window.glSwapWindow()
-  when defined(js):
-    jsSleep(app.env.delay.int)
-  else:
-    os.sleep(app.env.delay.int)
 
 
 template check(event, condition, conditionelif: untyped): untyped =
@@ -277,6 +268,25 @@ proc handleEvent(app: var App) =
       discard
 
 
+proc display(app: App) =
+  ## Displays current scene
+  let bg = app.env.background_color
+  glClearColor(bg.r, bg.g, bg.b, bg.a)
+  glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+  glEnable(GL_BLEND)
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+  glLoadIdentity()
+
+  app.current.draw()
+
+  glFlush()
+  app.window.glSwapWindow()
+  when defined(js):
+    jsSleep(app.env.delay.int)
+  else:
+    os.sleep(app.env.delay.int)
+
+
 proc run*(app: var App) =
   ## Runs app and launches the main scene
   if isNil(app.main):
@@ -284,6 +294,7 @@ proc run*(app: var App) =
   app.current = app.main
   app.running = true
   app.scene_stack.add(app.current)
+  app.current.enter()
 
   when defined(debug):
     echo "App started"
@@ -292,6 +303,8 @@ proc run*(app: var App) =
   while app.running:
     app.handleEvent()
     app.display()
+
+  app.current.exit()
 
   glDeleteContext(app.context)
   destroy(app.window)

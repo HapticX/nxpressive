@@ -1211,7 +1211,7 @@ proc getTitle*(window: WindowPtr): cstring {.importc: "SDL_GetWindowTitle".}
   ## **See also:**
   ## * `setTitle proc<#setTitle,WindowPtr,cstring>`_
 
-proc setIcon*(window: WindowPtr; icon: SurfacePtr) {.importc: "SDL_SetWindowIcon".}
+proc setIcon*(window: WindowPtr, icon: SurfacePtr) {.importc: "SDL_SetWindowIcon".}
   ## Set the icon for a window.
   ##
   ## `window` The window for which the icon should be set.
