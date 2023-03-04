@@ -33,9 +33,11 @@ It's simple to use and have a lot of sugar in syntax :eyes:.
   - [SDL2-mixer](https://github.com/libsdl-org/SDL_mixer)
   - [SDL2-image](https://github.com/libsdl-org/SDL_image)
 - Unix
-  ```bash
-  sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
-  ```
+  - SDL2
+    ```bash
+    sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+    ```
+  - [Vulkan API](https://vulkan.lunarg.com/sdk/home#linux)
 ### Engine
 ```bash
 nimble install https://github.com/HapticX/engine
