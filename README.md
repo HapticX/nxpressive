@@ -22,19 +22,18 @@ It's simple to use and have a lot of sugar in syntax :eyes:.
 
 
 ## Install :inbox_tray:
-### Install dependencies
-#### Win/MacOS
-Put all of these libraries in `./nimble/bin/` folder:
-- [SDL2](https://github.com/libsdl-org/SDL)
-- [SDL2-ttf](https://github.com/libsdl-org/SDL_ttf/)
-- [SDL2-mixer](https://github.com/libsdl-org/SDL_mixer)
-- [SDL2-image](https://github.com/libsdl-org/SDL_image)
-#### Unix
-```bash
-sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
-```
-
-### Install engine
+### Dependencies
+- Win/MacOS
+  Put all of these libraries in `./nimble/bin/` folder:
+  - [SDL2](https://github.com/libsdl-org/SDL)
+  - [SDL2-ttf](https://github.com/libsdl-org/SDL_ttf/)
+  - [SDL2-mixer](https://github.com/libsdl-org/SDL_mixer)
+  - [SDL2-image](https://github.com/libsdl-org/SDL_image)
+- Unix
+  ```bash
+  sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+  ```
+### Engine
 ```bash
 nimble install https://github.com/HapticX/engine
 ```

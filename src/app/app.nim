@@ -17,8 +17,7 @@ import
 
 type
   App* = object
-    scenes*: seq[HSceneRef]
-    current*, main*: HSceneRef
+    current, main*: HSceneRef
     context: GlContextPtr
     window: WindowPtr
     paused*: bool
@@ -26,6 +25,7 @@ type
     title: string
     w, h: cint
     env*: Environment
+    scenes, scene_stack: seq[HSceneRef]
 
 
 proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App =
@@ -49,6 +49,7 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
     paused: false,
     env: newEnvironment(),
     scenes: @[],
+    scene_stack: @[],
     current: nil,
     main: nil
   )
@@ -85,6 +86,27 @@ func `title=`*(app: var App, new_title: string): string =
   ## Changes app title
   app.title = new_title
   app.window.setTitle(new_title)
+
+
+func goTo*(app: var App, tag: string) =
+  ## Goes to available scene
+  for s in app.scenes:
+    if s.tag == tag:
+      app.scene_stack.add(s)
+      app.current = s
+      break
+
+
+func goBack*(app: var App) =
+  ## Goes back in scene stack
+  assert app.scene_stack.len > 0
+  discard app.scene_stack.pop()
+  app.current = app.scene_stack[^1]
+
+
+func clearSceneStack*(app: var App) =
+  ## Clears scene stack and puts current scene into stack
+  app.scene_stack = @[app.current]
 
 
 func size*(app: App): Vec2 =
@@ -185,6 +207,7 @@ proc run*(app: var App) =
     raise newException(MainSceneNotDefinedDefect, "Main scene not defined!")
   app.current = app.main
   app.running = true
+  app.scene_stack.add(app.current)
 
   when defined(debug):
     echo "App started"
