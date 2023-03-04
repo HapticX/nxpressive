@@ -18,7 +18,7 @@ experimental UI/2D engine written in Nim with :heart:
 It's simple to use and have a lot of sugar in syntax :eyes:.
 
 ### Features :sparkles:
-- Support C/Cpp/ObjC/JS backends;
+- Support `C`/`Cpp`/`ObjC`/`JS` backends;
 - Support earlier versions (`1.0.0` and above);
 - Support `OpenGL`/`Vulkan` API;
 - Event handling via `@` macro;

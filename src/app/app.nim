@@ -17,6 +17,51 @@ import
 
 when defined(vulkan):
   import ../thirdparty/vulkan
+
+  proc initVk*(): VkInstance =
+    ## Initializes and returns vk instance
+    var
+      app_info: VkApplicationInfo
+      create_info: VkInstanceCreateInfo
+      instance: VkInstance
+    let version: uint32 = vkMakeVersion(0, 1, 5)
+
+    app_info = newVkApplicationInfo(
+      pApplicationName = "HapticX engine",
+      pEngineName = "HapticX",
+      applicationVersion = 1,
+      engineVersion = version,
+      apiVersion = version
+    )
+    create_info = newVkInstanceCreateInfo(
+      pApplicationInfo = addr app_info,
+      enabledLayerCount = 0,
+      ppEnabledLayerNames = nil,
+      enabledExtensionCount = 0,
+      ppEnabledExtensionNames = nil
+    )
+    if vkCreateInstance(addr create_info, nil, addr instance) != VK_SUCCESS or not vkInit(instance):
+      raise newException(VkInitDefect, "Error when trying to initialize vulkan")
+    instance
+  
+  proc checkValidationLayers*(validationLayers: openArray[string]): bool =
+    ## Returns true when all layers from `validationLayers` is available
+    var
+      layerCount: uint32 = validationLayers.len.uint32
+      availableLayers: array[32, VkLayerProperties]
+    discard vkEnumerateInstanceLayerProperties(addr layerCount, nil)
+    discard vkEnumerateInstanceLayerProperties(addr layerCount, cast[ptr VkLayerProperties](addr availableLayers))
+
+    for layer in validationLayers:
+      var layerFound: bool = false
+      for layerProperties in availableLayers:
+        if $layer == $(join(layerProperties.layerName).toRunes()):
+          layerFound = true
+          break
+      if not layerFound:
+        return false
+    
+    return true
 else:
   import ../thirdparty/opengl
 
@@ -26,8 +71,6 @@ type
   App* = object
     when defined(vulkan):
       instance: VKInstance
-      create_info: VkInstanceCreateInfo
-      app_info: VkApplicationInfo
     else:
       context: GlContextPtr
     current, main*: HSceneRef
@@ -84,20 +127,8 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
   result.window = window
 
   when defined(vulkan):
-    result.app_info = newVkApplicationInfo(
-      pApplicationName = "HapticX engine", pEngineName = "HapticX",
-      applicationVersion = 1, engineVersion = vkMakeVersion(0, 1, 5),
-      apiVersion = vkMakeVersion(0, 1, 5)
-    )
-    result.create_info = newVkInstanceCreateInfo(
-      pApplicationInfo = addr result.app_info,
-      enabledLayerCount = 0,
-      ppEnabledLayerNames = nil,
-      enabledExtensionCount = 0,
-      ppEnabledExtensionNames = nil
-    )
-    if vkCreateInstance(addr result.create_info, nil, addr result.instance) != VK_SUCCESS:
-      raise newException(VkInitDefect, "Error when trying to initialize vulkan")
+    result.instance = initVk()
+    echo checkValidationLayers(["VK_LAYER_KHRONOS_validation"])
   else:
     result.context = window.glCreateContext()
     glShadeModel(GL_SMOOTH)
@@ -176,6 +207,8 @@ func size*(app: App): Vec2 =
 
 proc resize*(app: var App, w: cint, h: cint) =
   ## Resizes window
+  ## `w` - new width
+  ## `h` - new height
   app.window.setSize(w, h)
   app.w = w
   app.h = h
@@ -184,6 +217,7 @@ proc resize*(app: var App, w: cint, h: cint) =
 
 proc resize*(app: var App, new_size: Vec2) =
   ## Resizes window
+  ## `new_size` - Vec2 size repr
   app.window.setSize(new_size.x.cint, new_size.y.cint)
   app.w = new_size.x.cint
   app.h = new_size.y.cint
@@ -197,15 +231,21 @@ func quit*(app: var App) =
 
 template check(event, condition, conditionelif: untyped): untyped =
   ## Checks input event and changes press state
-  if last_event.kind == `event` and `condition`:
-    press_state = 2
-  elif `conditionelif`:
-    press_state = 1
-  else:
-    press_state = 0
+  ## `event` - InputEventType
+  ## `condition` - condition when press state should be 2
+  ## `conditionelif` - condition when press state should be 1
+  press_state =
+    if last_event.kind == `event` and `condition`:
+      2
+    elif `conditionelif`:
+      1
+    else:
+      0
 
 {.push cdecl.}
 proc keyboard(app: App, key: cint, pressed: bool) =
+  ## Notify input system about keyboard event
+  ## `key` - key code
   check(InputEventType.Keyboard, last_event.pressed, true)
   let k = $Rune(key)
   if pressed:
@@ -221,10 +261,12 @@ proc keyboard(app: App, key: cint, pressed: bool) =
   last_event.pressed = pressed
 
 proc textinput(app: App, ev: TextInputEventPtr) =
+  ## Notify input system about keyboard event
   last_event.kind = InputEventType.Text
   last_event.key = toRunes(join(ev.text))[0].toUTF8()
 
 proc mousebutton(app: App, btn, x, y: cint, pressed: bool) =
+  ## Notify input system about mouse button event
   check(InputEventType.Mouse, last_event.pressed and pressed, pressed)
   last_event.kind = InputEventType.Mouse
   last_event.pressed = pressed
@@ -232,12 +274,14 @@ proc mousebutton(app: App, btn, x, y: cint, pressed: bool) =
   last_event.y = y.float
 
 proc wheel(app: App, x, y: cint) =
+  ## Notify input system about mouse wheel event
   check(InputEventType.Wheel, false, false)
   last_event.kind = InputEventType.Wheel
   last_event.xrel = x.float
   last_event.yrel = y.float
 
 proc motion(app: App, x, y, xrel, yrel: cint) =
+  ## Notify input system about mouse motion event
   last_event.kind = InputEventType.Motion
   last_event.x = x.float
   last_event.y = y.float
@@ -245,15 +289,18 @@ proc motion(app: App, x, y, xrel, yrel: cint) =
   last_event.yrel = yrel.float
 
 proc joyaxismotion(app: App, axis: uint8, which: int, val: int16) =
+  ## Notify input system about joystick event
   last_event.kind = InputEventType.JAxisMotion
   last_event.axis = axis
   last_event.val = val.float
 
 proc joyhatmotion(app: App, axis: uint8, which: int) =
+  ## Notify input system about joystick event
   last_event.kind = InputEventType.JHatMotion
   last_event.axis = axis
 
 proc joybutton(app: App, button_index: cint, pressed: bool) =
+  ## Notify input system about joystick event
   check(InputEventType.JButton, last_event.pressed and pressed, pressed)
   last_event.kind = InputEventType.JButton
   last_event.button_index = button_index
@@ -262,6 +309,7 @@ proc joybutton(app: App, button_index: cint, pressed: bool) =
 
 
 proc handleEvent(app: var App) =
+  ## Handles SDL2 events
   # Handle joysticks
   var joystick: JoystickPtr
   discard joystickEventState(SDL_ENABLE)
@@ -314,12 +362,14 @@ proc display(app: App) =
   when defined(vulkan):
     discard
   else:
+    # Default color
     glClearColor(bg.r, bg.g, bg.b, bg.a)
     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     glLoadIdentity()
 
+  # Draw current scene
   app.current.draw()
 
   when defined(vulkan):
@@ -327,6 +377,7 @@ proc display(app: App) =
   else:
     glFlush()
     app.window.glSwapWindow()
+  # Framerate
   when defined(js):
     jsSleep(app.env.delay.int)
   else:
