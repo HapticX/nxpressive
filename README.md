@@ -1,7 +1,7 @@
 <div align="center">
 
 ## ` H a p t i c X   E n g i n e `
-experimental UI/2D engine written in Nim with ♥
+experimental UI/2D engine written in Nim with :heart:
 
 ![Nim language](https://img.shields.io/badge/Nim-2b2e3b?style=for-the-badge&logo=nim&logoColor=f1fa8c)
 ![Open GL](https://img.shields.io/badge/Open%20GL-2b2e3b?style=for-the-badge&logo=opengl&logoColor=f1fa8c)
@@ -13,15 +13,15 @@ experimental UI/2D engine written in Nim with ♥
 
 </div>
 
-## Why HapticX?
+## Why HapticX? :new_moon_with_face:
 It's simple to use and have a lot of sugar in syntax :eyes:.
 
-### Features
+### Features :sparkles:
 - C/Cpp/ObjC/JS backends support;
 - Event handling via `@` macro;
 
 
-## Install
+## Install :inbox_tray:
 ### Install dependencies
 #### Win/MacOS
 Put all of these libraries in `./nimble/bin/` folder:
@@ -38,3 +38,9 @@ sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-de
 ```bash
 nimble install https://github.com/HapticX/engine
 ```
+
+## What's Next? :bulb:
+Even more features! and bugs :bug:
+
+## Contributing :dizzy:
+You can help to fix bugs and errors if you want :v:
