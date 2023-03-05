@@ -46,7 +46,7 @@ when defined(vulkan):
   
   proc checkExtensionLayers* =
     var extCount: uint32
-    vkEnumerateInstanceExtensionsProperties(nil, addr extCount, nil)
+    discard vkEnumerateInstanceExtensionProperties(nil, addr extCount, nil)
   
   proc checkValidationLayers*(validationLayers: openArray[string]): bool =
     ## Returns true when all layers from `validationLayers` is available
