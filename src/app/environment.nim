@@ -14,6 +14,7 @@ type
 
 
 func newEnvironment*: Environment =
+  ## Creates a new environment
   Environment(
     brightness: 1f,
     delay: 16f,

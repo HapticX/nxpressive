@@ -261,3 +261,14 @@ func clamped*(a: Vec3, length: float): Vec3 {.inline.} =
 func reflect*(a, plane: Vec3): Vec3 {.inline.} =
   ## Reflects the vector `a` along the given plane by its normal vector `plane`
   a - plane * 2 * dot(a, plane)
+
+func intersects*(a, b, c, d: Vec3): bool =
+  ## Returns true when line `a`,`b` intersects with line `c`,`d`.
+  let t = (b.x - a.x)*(d.y - c.y) - (b.y - a.y)*(d.x - c.x) - (b.z - a.z)*(d.z - c.z)
+  if t != 0:
+    let
+      r = ((a.y - c.y)*(d.x - c.x) - (a.x - c.x)*(d.y - c.y) - (a.z - c.z)*(d.z - c.z)) / t
+      s = ((a.y - c.y)*(b.x - a.x) - (a.x - c.x)*(b.y - a.y) - (a.z - c.z)*(d.z - a.z)) / t
+    if r >= 0 and r <= 1 and s >= 0 and s <= 1:
+      return true
+  false

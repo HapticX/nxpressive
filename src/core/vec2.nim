@@ -177,3 +177,14 @@ func bounce*(a, b: Vec2): Vec2 {.inline.} =
 func clamped*(a: Vec2, length: float): Vec2 {.inline.} =
   ## Returns vector with maximum length
   a * (length / a.len)
+
+func intersects*(a, b, c, d: Vec2): bool =
+  ## Returns true when line `a`,`b` intersects with line `c`,`d`.
+  let t = (b.x - a.x)*(d.y - c.y) - (b.y - a.y)*(d.x - c.x)
+  if t != 0:
+    let
+      r = ((a.y - c.y)*(d.x - c.x) - (a.x - c.x)*(d.y - c.y)) / t
+      s = ((a.y - c.y)*(b.x - a.x) - (a.x - c.x)*(b.y - a.y)) / t
+    if r >= 0 and r <= 1 and s >= 0 and s <= 1:
+      return true
+  false

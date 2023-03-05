@@ -44,6 +44,10 @@ when defined(vulkan):
       raise newException(VkInitDefect, "Error when trying to initialize vulkan")
     instance
   
+  proc checkExtensionLayers* =
+    var extCount: uint32
+    vkEnumerateInstanceExtensionsProperties(nil, addr extCount, nil)
+  
   proc checkValidationLayers*(validationLayers: openArray[string]): bool =
     ## Returns true when all layers from `validationLayers` is available
     var
@@ -129,6 +133,7 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
   when defined(vulkan):
     result.instance = initVk()
     echo checkValidationLayers(["VK_LAYER_KHRONOS_validation"])
+    checkExtensionLayers()
   else:
     result.context = window.glCreateContext()
     glShadeModel(GL_SMOOTH)
@@ -139,6 +144,7 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
 
 proc reshape*(width, height: cint) =
   ## Computes an aspect ratio of the new window size
+  ## `width` and `height` of current window
   when defined(vulkan):
     discard
   else:
@@ -163,6 +169,7 @@ func `title=`*(app: var App, new_title: string): string =
 
 func `icon=`*(app: var App, icon_path: cstring) =
   ## Changes app icon if available
+  ## `icon_path` is path to icon
   let icon = cast[SurfacePtr](image.load(icon_path))
   app.window.setIcon(icon)
 
