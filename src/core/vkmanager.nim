@@ -29,8 +29,15 @@ func isComplete*(a: QueueFamilyIndeces): bool =
 
 
 proc checkExtensionLayers* =
-  var extCount: uint32
+  ## Checks available vulkan extensions
+  var
+    extCount: uint32
+    extensions: array[32, VkExtensionProperties]
   discard vkEnumerateInstanceExtensionProperties(nil, addr extCount, nil)
+  discard vkEnumerateInstanceExtensionProperties(nil, addr extCount, cast[ptr VkExtensionProperties](addr extensions))
+
+  for ext in extensions:
+    echo $(join(ext.extensionName).toRunes())
 
 
 proc checkValidationLayers*(validationLayers: openArray[string]): bool =
@@ -40,6 +47,7 @@ proc checkValidationLayers*(validationLayers: openArray[string]): bool =
     availableLayers: array[32, VkLayerProperties]
   discard vkEnumerateInstanceLayerProperties(addr layerCount, nil)
   discard vkEnumerateInstanceLayerProperties(addr layerCount, cast[ptr VkLayerProperties](addr availableLayers))
+
   for layer in validationLayers:
     var layerFound: bool = false
     for layerProperties in availableLayers:
@@ -78,6 +86,8 @@ proc initVulkan*(): VulkanManager =
   let res = vkCreateInstance(addr result.create_info, nil, addr result.instance)
   if res != VK_SUCCESS or not vkInit(result.instance):
     raise newException(VkInitDefect, "Error when trying to initialize vulkan")
+
+  checkExtensionLayers()
 
 
 proc display*(m: VulkanManager) =

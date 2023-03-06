@@ -18,7 +18,7 @@ import
 when defined(vulkan):
   import
     ../thirdparty/vulkan,
-    ../core/vulkan
+    ../core/vkmanager
 else:
   import ../thirdparty/opengl
 
