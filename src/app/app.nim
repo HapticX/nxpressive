@@ -16,56 +16,9 @@ import
   ./environment
 
 when defined(vulkan):
-  import ../thirdparty/vulkan
-
-  proc initVk*(): VkInstance =
-    ## Initializes and returns vk instance
-    var
-      app_info: VkApplicationInfo
-      create_info: VkInstanceCreateInfo
-      instance: VkInstance
-    let version: uint32 = vkMakeVersion(0, 1, 5)
-
-    app_info = newVkApplicationInfo(
-      pApplicationName = "HapticX engine",
-      pEngineName = "HapticX",
-      applicationVersion = 1,
-      engineVersion = version,
-      apiVersion = version
-    )
-    create_info = newVkInstanceCreateInfo(
-      pApplicationInfo = addr app_info,
-      enabledLayerCount = 0,
-      ppEnabledLayerNames = nil,
-      enabledExtensionCount = 0,
-      ppEnabledExtensionNames = nil
-    )
-    if vkCreateInstance(addr create_info, nil, addr instance) != VK_SUCCESS or not vkInit(instance):
-      raise newException(VkInitDefect, "Error when trying to initialize vulkan")
-    instance
-  
-  proc checkExtensionLayers* =
-    var extCount: uint32
-    discard vkEnumerateInstanceExtensionProperties(nil, addr extCount, nil)
-  
-  proc checkValidationLayers*(validationLayers: openArray[string]): bool =
-    ## Returns true when all layers from `validationLayers` is available
-    var
-      layerCount: uint32 = validationLayers.len.uint32
-      availableLayers: array[32, VkLayerProperties]
-    discard vkEnumerateInstanceLayerProperties(addr layerCount, nil)
-    discard vkEnumerateInstanceLayerProperties(addr layerCount, cast[ptr VkLayerProperties](addr availableLayers))
-
-    for layer in validationLayers:
-      var layerFound: bool = false
-      for layerProperties in availableLayers:
-        if $layer == $(join(layerProperties.layerName).toRunes()):
-          layerFound = true
-          break
-      if not layerFound:
-        return false
-    
-    return true
+  import
+    ../thirdparty/vulkan,
+    ../core/vulkan
 else:
   import ../thirdparty/opengl
 
@@ -74,7 +27,7 @@ else:
 type
   App* = object
     when defined(vulkan):
-      instance: VKInstance
+      vkmanager: VulkanManager
     else:
       context: GlContextPtr
     current, main*: HSceneRef
@@ -97,7 +50,7 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
     when defined(vulkan):
       # Initialize Vulkan
       if not defined(android) and not defined(ios) and not defined(js):
-        vulkan.vkPreload()
+        vkPreload()
     elif not defined(android) and not defined(ios) and not defined(js):
       # Initialize OpenGL
       loadExtensions()
@@ -131,9 +84,7 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
   result.window = window
 
   when defined(vulkan):
-    result.instance = initVk()
-    echo checkValidationLayers(["VK_LAYER_KHRONOS_validation"])
-    checkExtensionLayers()
+    result.vkmanager = initVulkan()
   else:
     result.context = window.glCreateContext()
     glShadeModel(GL_SMOOTH)
@@ -367,7 +318,7 @@ proc display(app: App) =
   ## Displays current scene
   let bg = app.env.background_color
   when defined(vulkan):
-    discard
+    app.vkmanager.display()
   else:
     # Default color
     glClearColor(bg.r, bg.g, bg.b, bg.a)
@@ -411,7 +362,7 @@ proc run*(app: var App) =
   app.current.exit()
 
   when defined(vulkan):
-    vkDestroyInstance(app.instance, nil)
+    app.vkmanager.cleanUp()
   else:
     glDeleteContext(app.context)
   destroy(app.window)
