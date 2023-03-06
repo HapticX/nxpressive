@@ -28,7 +28,7 @@ func isComplete*(a: QueueFamilyIndeces): bool =
   a.graphicsFamily.isSome and a.presentFamily.isSome
 
 
-proc checkExtensionLayers* =
+proc checkExtensionLayers*: array[32, VkExtensionProperties] {.discardable.} =
   ## Checks available vulkan extensions
   var
     extCount: uint32
@@ -36,28 +36,47 @@ proc checkExtensionLayers* =
   discard vkEnumerateInstanceExtensionProperties(nil, addr extCount, nil)
   discard vkEnumerateInstanceExtensionProperties(nil, addr extCount, cast[ptr VkExtensionProperties](addr extensions))
 
-  for ext in extensions:
-    echo $(join(ext.extensionName).toRunes())
+  when defined(debug):
+    echo "Available extension layers"
+    for ext in extensions:
+      echo $(join(ext.extensionName).toRunes())
+  extensions
 
 
-proc checkValidationLayers*(validationLayers: openArray[string]): bool =
-  ## Returns true when all layers from `validationLayers` is available
+proc checkInstanceLayers*(): array[32, VkLayerProperties] {.discardable.} =
+  ## Checks available vulkan instance layers
   var
-    layerCount: uint32 = validationLayers.len.uint32
+    layerCount: uint32
     availableLayers: array[32, VkLayerProperties]
   discard vkEnumerateInstanceLayerProperties(addr layerCount, nil)
   discard vkEnumerateInstanceLayerProperties(addr layerCount, cast[ptr VkLayerProperties](addr availableLayers))
 
-  for layer in validationLayers:
-    var layerFound: bool = false
+  when defined(debug):
+    echo "Available instance layers"
     for layerProperties in availableLayers:
-      if $layer == $(join(layerProperties.layerName).toRunes()):
+      echo $(join(layerProperties.layerName).toRunes())
+  availableLayers
+
+
+proc checkValidationLayersSupport*(validationLayers: openArray[string] | seq[string]): bool =
+  ## Returns true when validation layers is supported
+  let layers = checkInstanceLayers()
+  
+  for layerName in validationLayers:
+    var layerFound = false
+
+    for layer in layers:
+      var name = ""
+      for c in layer.layerName:
+        if c != '\x00':
+          name &= c
+      if name == layerName:
         layerFound = true
         break
+    
     if not layerFound:
-      return false
-  
-  return true
+     return false
+  true
 
 
 proc isDeviceSuitable*(device: VkPhysicalDevice): bool =
@@ -88,6 +107,9 @@ proc initVulkan*(): VulkanManager =
     raise newException(VkInitDefect, "Error when trying to initialize vulkan")
 
   checkExtensionLayers()
+  checkInstanceLayers()
+
+  echo checkValidationLayersSupport(@["VK_LAYER_AMD_switchable_graphics"])
 
 
 proc display*(m: VulkanManager) =
