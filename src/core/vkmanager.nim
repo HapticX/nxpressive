@@ -28,7 +28,7 @@ func isComplete*(a: QueueFamilyIndeces): bool =
   a.graphicsFamily.isSome and a.presentFamily.isSome
 
 
-proc checkExtensionLayers*: array[32, VkExtensionProperties] {.discardable.} =
+proc checkExtensionLayers*: tuple[count: uint32, arr: array[32, VkExtensionProperties]] {.discardable.} =
   ## Checks available vulkan extensions
   var
     extCount: uint32
@@ -40,10 +40,10 @@ proc checkExtensionLayers*: array[32, VkExtensionProperties] {.discardable.} =
     echo "Available extension layers"
     for ext in extensions:
       echo $(join(ext.extensionName).toRunes())
-  extensions
+  (extCount, extensions)
 
 
-proc checkInstanceLayers*(): array[32, VkLayerProperties] {.discardable.} =
+proc checkInstanceLayers*(): tuple[count: uint32, arr: array[32, VkLayerProperties]] {.discardable.} =
   ## Checks available vulkan instance layers
   var
     layerCount: uint32
@@ -55,7 +55,7 @@ proc checkInstanceLayers*(): array[32, VkLayerProperties] {.discardable.} =
     echo "Available instance layers"
     for layerProperties in availableLayers:
       echo $(join(layerProperties.layerName).toRunes())
-  availableLayers
+  (layerCount, availableLayers)
 
 
 proc checkValidationLayersSupport*(validationLayers: openArray[string] | seq[string]): bool =
@@ -65,7 +65,7 @@ proc checkValidationLayersSupport*(validationLayers: openArray[string] | seq[str
   for layerName in validationLayers:
     var layerFound = false
 
-    for layer in layers:
+    for layer in layers.arr:
       var name = ""
       for c in layer.layerName:
         if c != '\x00':
@@ -95,19 +95,46 @@ proc initVulkan*(): VulkanManager =
     engineVersion = version,
     apiVersion = version
   )
-  result.create_info = newVkInstanceCreateInfo(
-    pApplicationInfo = addr result.app_info,
-    enabledLayerCount = 0,
-    ppEnabledLayerNames = nil,
-    enabledExtensionCount = 0,
-    ppEnabledExtensionNames = nil
-  )
+  when defined(debug):
+    var
+      (extCount, extArr) = checkExtensionLayers()
+      (layersCount, layersArr) = checkInstanceLayers()
+      name: string
+      ppLayers: seq[string] = @[]
+      ppExtensions: seq[string] = @[]
+    for i in extArr.low..extArr.high:
+      name = ""
+      for j in extArr[i].extensionName:
+        if j != '\x00':
+          name &= j
+      if name.len > 0:
+        ppExtensions.add(name)
+    for i in layersArr.low..layersArr.high:
+      name = ""
+      for j in layersArr[i].layerName:
+        if j != '\x00':
+          name &= j
+      if name.len > 0:
+        ppLayers.add(name)
+    result.create_info = newVkInstanceCreateInfo(
+      pApplicationInfo = addr result.app_info,
+      enabledLayerCount = layersCount,
+      ppEnabledLayerNames = allocCStringArray(ppLayers.toOpenArray(ppLayers.low, ppLayers.high)),
+      enabledExtensionCount = extCount,
+      ppEnabledExtensionNames = allocCStringArray(ppExtensions.toOpenArray(ppExtensions.low, ppExtensions.high))
+    )
+  else:
+    result.create_info = newVkInstanceCreateInfo(
+      pApplicationInfo = addr result.app_info,
+      enabledLayerCount = 0,
+      ppEnabledLayerNames = nil,
+      enabledExtensionCount = 0,
+      ppEnabledExtensionNames = nil
+    )
   let res = vkCreateInstance(addr result.create_info, nil, addr result.instance)
   if res != VK_SUCCESS or not vkInit(result.instance):
+    echo res
     raise newException(VkInitDefect, "Error when trying to initialize vulkan")
-
-  checkExtensionLayers()
-  checkInstanceLayers()
 
   echo checkValidationLayersSupport(@["VK_LAYER_AMD_switchable_graphics"])
 
