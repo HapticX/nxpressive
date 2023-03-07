@@ -72,20 +72,23 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
     current: nil,
     main: nil
   )
-  when defined(vulkan):
-    let flags = SDL_WINDOW_VULKAN
-  else:
-    let flags = SDL_WINDOW_OPENGL
+  let backend_flag =
+    when defined(vulkan):
+      SDL_WINDOW_VULKAN
+    else:
+      SDL_WINDOW_OPENGL
   let window = createWindow(
     title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-    SDL_WINDOW_SHOWN or flags or SDL_WINDOW_RESIZABLE or SDL_WINDOW_ALLOW_HIGHDPI or
+    SDL_WINDOW_SHOWN or backend_flag or SDL_WINDOW_RESIZABLE or SDL_WINDOW_ALLOW_HIGHDPI or
     SDL_WINDOW_FOREIGN or SDL_WINDOW_INPUT_FOCUS or SDL_WINDOW_MOUSE_FOCUS
   )
   result.window = window
 
   when defined(vulkan):
+    # Initializes Vulkan API
     result.vkmanager = initVulkan()
   else:
+    # Initializes OpenGL
     result.context = window.glCreateContext()
     glShadeModel(GL_SMOOTH)
     glClear(GL_COLOR_BUFFER_BIT)

@@ -3,6 +3,7 @@
 ]#
 import
   strutils,
+  strformat,
   unicode,
   options,
   ./exceptions,
@@ -88,6 +89,7 @@ proc initVulkan*(): VulkanManager =
   ## Initializes and returns vk instance
   result = VulkanManager()
   let version: uint32 = vkMakeVersion(0, 1, 5)
+  # Register Application info
   result.app_info = newVkApplicationInfo(
     pApplicationName = "HapticX engine",
     pEngineName = "HapticX",
@@ -96,12 +98,16 @@ proc initVulkan*(): VulkanManager =
     apiVersion = version
   )
   when defined(debug):
+    ## Adds validation layers in VkInstanceCreateInfo
     var
+      # Get all layers
       (extCount, extArr) = checkExtensionLayers()
       (layersCount, layersArr) = checkInstanceLayers()
+      # layer name
       name: string
       ppLayers: seq[string] = @[]
       ppExtensions: seq[string] = @[]
+    # Extension names handler
     for i in extArr.low..extArr.high:
       name = ""
       for j in extArr[i].extensionName:
@@ -109,6 +115,7 @@ proc initVulkan*(): VulkanManager =
           name &= j
       if name.len > 0:
         ppExtensions.add(name)
+    # Instance layer names handler
     for i in layersArr.low..layersArr.high:
       name = ""
       for j in layersArr[i].layerName:
@@ -116,6 +123,7 @@ proc initVulkan*(): VulkanManager =
           name &= j
       if name.len > 0:
         ppLayers.add(name)
+    # Add layers into VkInstanceCreateInfo
     result.create_info = newVkInstanceCreateInfo(
       pApplicationInfo = addr result.app_info,
       enabledLayerCount = layersCount,
@@ -124,6 +132,7 @@ proc initVulkan*(): VulkanManager =
       ppEnabledExtensionNames = allocCStringArray(ppExtensions.toOpenArray(ppExtensions.low, ppExtensions.high))
     )
   else:
+    # Without debug mode validation layers is not added
     result.create_info = newVkInstanceCreateInfo(
       pApplicationInfo = addr result.app_info,
       enabledLayerCount = 0,
@@ -132,10 +141,9 @@ proc initVulkan*(): VulkanManager =
       ppEnabledExtensionNames = nil
     )
   let res = vkCreateInstance(addr result.create_info, nil, addr result.instance)
+  # Check for errors
   if res != VK_SUCCESS or not vkInit(result.instance):
-    echo res
-    raise newException(VkInitDefect, "Error when trying to initialize vulkan")
-
+    raise newException(VkInitDefect, fmt"Error when trying to initialize vulkan - {res}")
   echo checkValidationLayersSupport(@["VK_LAYER_AMD_switchable_graphics"])
 
 

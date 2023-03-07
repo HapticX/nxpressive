@@ -52,18 +52,25 @@ func isInputEventText*(a: InputEvent): bool = a.kind == InputEventType.Text
 func isInputEventWheel*(a: InputEvent): bool = a.kind == InputEventType.Wheel
 
 proc regButtonAction*(name: string, button: cint | uint8) =
+  ## Register mouse button action
   actions.add(InputAction(kind: InputEventType.Mouse, name: name, button_index: button.cint))
 proc regKeyAction*(name, key: string) =
+  ## Register keyboard action
   actions.add(InputAction(kind: InputEventType.Keyboard, name: name, key: key))
 proc regKeyAction*(name: string, key: cint) =
+  ## Register keyboard action, but for keycode
   actions.add(InputAction(kind: InputEventType.Keyboard, name: name, key_int: key))
 proc regTouchAction*(name: string) =
+  ## Register touch action
   actions.add(InputAction(kind: InputEventType.Touch, name: name))
 proc regJoyAxisMotion*(name: string, axis: uint8) =
+  ## Register joystick axis motion action
   actions.add(InputAction(kind: InputEventType.JAxisMotion, name: name, axis: axis))
 proc regJoyHatMotion*(name: string, axis: uint8) =
+  ## Reguster joystick hat motion action
   actions.add(InputAction(kind: InputEventType.JHatMotion, name: name, axis: axis))
 proc regJoyButton*(name: string, button_index: cint) =
+  ## Register joystick button action
   actions.add(InputAction(kind: InputEventType.JButton, name: name, button_index: button_index))
 {.pop.}
 

@@ -240,6 +240,7 @@ func blend*(a, b: Color, blendMode: BlendMode = BlendMode.Normal): Color =
 
 # --== Other color systems ==-- #
 func `hue`*(a: Color): float32 =
+  ## Calculates hue value and returns it
   let
     maxValue = max(a.r, max(a.g, a.b))
     minValue = min(a.r, min(a.g, a.b))
@@ -258,6 +259,7 @@ func `hue`*(a: Color): float32 =
   result = result / 360f
 
 func `saturation`*(a: Color): float32 =
+  ## Calculates saturation and returns it
   let
     maxValue = max(a.r, max(a.g, a.b))
     minValue = min(a.r, min(a.g, a.b))
@@ -269,10 +271,12 @@ func `saturation`*(a: Color): float32 =
     (delta / maxValue)
 
 func `brightness`*(a: Color): float32 {.inline.} =
+  ## Calculates color brightness
   max(a.r, max(a.g, a.b))
 
 when not defined(js):
   func `hex`*(a: Color): int64 =
+    ## Returns HEX integer
     (
       ((a.r * 255f).int64 shl 24) or
       ((a.g * 255f).int64 shl 16) or
@@ -281,6 +285,7 @@ when not defined(js):
     )
 else:
   func `hex`*(a: Color): int =
+    ## Returns HEX integer
     (
       ((a.r * 255f).int shl 16) or
       ((a.g * 255f).int shl 8) or

@@ -45,3 +45,12 @@ func contains*(a: Rect, b: Vec2): bool =
 func contains*(a: Rect, b, c: Vec2): bool =
   ## Returns true when rect `a` contains segment `b`, `c`
   a.contains(b) and a.contains(b)
+
+
+func intersects*(a: Rect, b, c: Vec2): bool =
+  ## Returns true when rect `a` intersects with segment `b`,`c`
+  a.contains(b, c) or
+  intersects(newVec2(a.left, a.top), newVec2(a.right, a.top), b, c) or
+  intersects(newVec2(a.left, a.top), newVec2(a.left, a.bottom), b, c) or
+  intersects(newVec2(a.left, a.bottom), newVec2(a.right, a.bottom), b, c) or
+  intersects(newVec2(a.right, a.top), newVec2(a.right, a.bottom), b, c)

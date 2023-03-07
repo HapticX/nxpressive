@@ -89,6 +89,7 @@ func pretty*(a: Basis): string =
 )"""
 
 func `[]`*(a: Basis, index: int): Vec3 =
+  ## Returns basis `x`, `y` or `z` by `index`
   if index == 0:
     a.x
   elif index == 1:
@@ -99,6 +100,7 @@ func `[]`*(a: Basis, index: int): Vec3 =
     raise newException(OutOfIndexDefect, fmt"{index} is out of bounds")
 
 func `[]=`*(a: var Basis, index: int, val: Vec3): float =
+  ## Changes basis `x`, `y` or `z` by `index` to `val`
   if index == 0:
     a.x = val
   elif index == 1:
