@@ -20,12 +20,15 @@ type
     instance: VkInstance
     create_info: VkInstanceCreateInfo
     app_info: VkApplicationInfo
-  QueueFamilyIndeces* = object
+    when defined(debug):
+      debugger: VkDebugUtilsMessengerEXT
+      debugger_create_info: VkDebugUtilsMessengerCreateInfoEXT
+  QueueFamilyIndices* = object
     graphicsFamily*: Option[uint32]
     presentFamily*: Option[uint32]
 
 
-func isComplete*(a: QueueFamilyIndeces): bool =
+func isComplete*(a: QueueFamilyIndices): bool =
   a.graphicsFamily.isSome and a.presentFamily.isSome
 
 
@@ -82,7 +85,90 @@ proc checkValidationLayersSupport*(validationLayers: openArray[string] | seq[str
 
 proc isDeviceSuitable*(device: VkPhysicalDevice): bool =
   ## Check for extension support
-  var indices: QueueFamilyIndeces
+  var indices: QueueFamilyIndices
+
+
+proc findQueueFamilies*(physicalDevice: VkPhysicalDevice, surface: VkSurfaceKHR): QueueFamilyIndices =
+  var indices = QueueFamilyIndices()
+  var queueFamilyCount: uint32
+  vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, addr queueFamilyCount, nil)
+
+  var queueFamilies = newSeq[VkQueueFamilyProperties](queueFamilyCount.int)
+  vkGetPhysicalDeviceQueueFamilyProperties(
+    physicalDevice, addr queueFamilyCount, cast[ptr VkQueueFamilyProperties](addr queueFamilies)
+  )
+
+  for (index, family) in queueFamilies:
+    if family.queueCount > 0 and family.queueFlags and VK_QUEUE_GRAPHICS_BIT != 0:
+      indices.graphicsFamily = index
+
+      var presentSupport: VkBool32 = VK_FALSE
+      vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, index, surface, addr presentSupport)
+
+      if presentSupport:
+        indices.presentFamily = index
+
+      if indices.isComplete:
+        break
+
+  return indices
+
+
+proc createQueueInfos*(indices: QueueFamilyIndices): seq[VkDeviceQueueCreateInfo] =
+  var queueCreateInfos = newSeq[VkDeviceQueueCreateInfo](2)
+
+  var priority: float32 = 1.0
+  for (i, familyIndex) in [indices.graphicsFamily.get(), indices.presentFamily.get()].pairs:
+    let createInfo = newVkDeviceQueueCreateInfo(
+      queueFamilyIndex = familyIndex,
+      queueCount = queueCreateInfos.len.uint32,
+      pQueuePriorities = addr priority
+    )
+    queueCreateInfos[i] = createInfo
+
+  return queueCreateInfos
+
+
+proc getDefaultDeviceFeatures*(): VkPhysicalDeviceFeatures =
+  result.samplerAnisotropy = true
+
+
+proc getRequiredDeviceExtensions*(): DeviceExtensions =
+  result.count = 1
+  result.names = @["VK_KHR_swapchain"]
+
+
+proc initDeviceCreateInfo*(queueCreateInfos: seq[VkDeviceQueueCreateInfo],
+                            deviceFeatures: VkPhysicalDeviceFeatures,
+                            deviceExtensions: DeviceExtensions): VkDeviceCreateInfo =
+  var deviceCreateInfo = initVkStruct[VkDeviceCreateInfo]()
+  deviceCreateInfo.queueCreateInfoCount = queueCreateInfos.len.int
+  deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.addr
+  deviceCreateInfo.pEnabledFeatures = addr deviceFeatures
+
+  deviceCreateInfo.enabledExtensionCount = deviceExtensions.count.int
+  deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.names.withCStrings
+
+  return deviceCreateInfo
+
+
+proc createDevice*(m: VulkanManager): VkDevice =
+  let queueFamilies = findQueueFamilies(m.physicalDevice, m.surface)
+  let queueCreateInfos = createQueueInfos(queueFamilies)
+  let deviceFeatures = getDefaultDeviceFeatures()
+  let deviceExtensions = getRequiredDeviceExtensions()
+
+  let deviceCreateInfo = initDeviceCreateInfo(
+    queueCreateInfos, deviceFeatures, deviceExtensions)
+
+  var device: VkDevice
+  check vkCreateDevice(m.physicalDevice, deviceCreateInfo, null, addr device) == VK_SUCCESS
+
+  for i in 0 ..< queueFamilies.graphicsFamily.get().uint32:
+    var queue: VkQueue
+    vkGetDeviceQueue(device, queueFamilies.graphicsFamily.get(), i, addr queue)
+
+  return device
 
 
 proc initVulkan*(): VulkanManager =
@@ -95,7 +181,7 @@ proc initVulkan*(): VulkanManager =
     pEngineName = "HapticX",
     applicationVersion = 1,
     engineVersion = version,
-    apiVersion = version
+    apiVersion = vkApiVersion1_2
   )
   when defined(debug):
     ## Adds validation layers in VkInstanceCreateInfo

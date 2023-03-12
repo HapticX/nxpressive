@@ -9,7 +9,7 @@
 #  Copyright (C) 1995-1998  Brian Paul
 #
 
-import x11/x, x11/xlib, x11/xutil, opengl
+import x11/x, x11/xlib, x11/xutil, ../opengl
 
 {.deadCodeElim: on.}
 

@@ -20,7 +20,8 @@ when defined(vulkan):
     ../thirdparty/vulkan,
     ../core/vkmanager
 else:
-  import ../thirdparty/opengl
+  import
+    ../thirdparty/opengl
 
 
 
@@ -51,7 +52,7 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
       # Initialize Vulkan
       if not defined(android) and not defined(ios) and not defined(js):
         vkPreload()
-    elif not defined(android) and not defined(ios) and not defined(js):
+    elif not defined(android) and not defined(ios) and not defined(js) and not defined(useGlew):
       # Initialize OpenGL
       loadExtensions()
     when not defined(vulkan):

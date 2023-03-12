@@ -107,8 +107,7 @@ method handleEvent*(self: HNodeRef, event: InputEvent) {.base.} =
   discard
 
 
-# ---=== Base functions ===--- #
-proc destroy*(self: HNodeRef) =
+method destroy*(self: HNodeRef) {.base.} =
   ## Destroys node.
   ## This calls `destroyed` callback.
   self.on_destroy()
@@ -119,6 +118,7 @@ proc destroy*(self: HNodeRef) =
     self.parent = nil
 
 
+# ---=== Base functions ===--- #
 func iter*(self: HNodeRef): seq[HNodeRef] =
   ## Iterate all children of children
   result = @[]

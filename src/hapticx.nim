@@ -10,6 +10,7 @@ import
   core/input,
   nodes/node,
   nodes/scene,
+  nodes/canvas,
   app/app,
   app/environment
 
@@ -27,6 +28,7 @@ export
   # nodes
   node,
   scene,
+  canvas,
   # application
   app,
   environment
