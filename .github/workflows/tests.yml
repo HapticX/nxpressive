@@ -147,6 +147,8 @@ jobs:
         run: |
           curl -L https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0-win32.zip -o glew.zip
           unzip -q glew.zip
+          ls
+          ls glew
           cp -f -rp glew/glew-2.1.0/include/* glew/include
           cp -f -rp glew/glew-2.1.0/lib/Release/x64/glew32.lib glew/lib/Release/x64
 
