@@ -194,11 +194,12 @@ jobs:
           cp -f -rp optional/*.dll ~/.nimble/bin
           cd ..
 
+      - name: Install wine
+        run: sudo apt-get install wine
       
       - name: Install Vulkan SDK
         shell: bash
         run: |
-          choco install wine -y
           curl -L https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -o VulkanSDK.exe
           wine VulkanSDK.exe /S /D=C:/VulkanSDK
 
