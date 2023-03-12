@@ -149,14 +149,14 @@ jobs:
       - name: Install MinGW
         run: |
           choco install mingw
-          set PATH=C:\tools\mingw64\bin;%PATH%
+          secho "::add-path::C:\tools\mingw64\bin;%PATH%"
           choco install mingw-get
           mingw-get install mingw-developer-toolkit
           mingw-get install mingw32-base
           mingw-get install mingw32-gcc-g++
           mingw-get install mingw32-gcc-objc
           mingw-get install msys-base
-          set PATH=C:\tools\mingw32\bin;C:\tools\mingw32\msys\1.0\bin;%PATH%
+          echo "::add-path::C:\tools\mingw32\bin;C:\tools\mingw32\msys\1.0\bin;%PATH%"
         
       - name: Download GLEW
         run: |
