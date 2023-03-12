@@ -147,16 +147,15 @@ jobs:
         run: |
           curl -L https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0-win32.zip -o glew.zip
           unzip -q glew.zip
-          ls
-          ls glew
-          cp -f -rp glew/glew-2.1.0/include/* glew/include
-          cp -f -rp glew/glew-2.1.0/lib/Release/x64/glew32.lib glew/lib/Release/x64
+          cp -f -rp glew-2.1.0/include/* glew/include
+          cp -f -rp glew-2.1.0/lib/Release/x64/glew32.lib glew/lib/Release/x64
 
       - name: Download SDL2
         shell: bash
         run: |
           curl -L https://github.com/libsdl-org/SDL/releases/download/release-2.26.4/SDL2-2.26.4-win32-x64.zip -o SDL2.zip
           unzip -q SDL2.zip
+          ls
           cp -f -rp SDL2/SDL2-2.26.4/lib/x64/*.dll ~/.nimble/bin
       
       - name: Download SDL2-ttf
