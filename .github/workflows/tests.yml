@@ -141,11 +141,6 @@ jobs:
       - uses: jiro4989/setup-nim-action@v1
         with:
           nim-version: ${{ matrix.nim_version }}
-
-      - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x64
         
       - name: Download GLEW
         shell: bash
@@ -189,6 +184,11 @@ jobs:
         run: |
           wget -O VulkanSDK.exe https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe
           wine VulkanSDK.exe /S /D=C:/VulkanSDK
+
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
 
       - name: Build tests
         run: |
