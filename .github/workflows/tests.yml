@@ -198,7 +198,7 @@ jobs:
       - name: Install Vulkan SDK
         shell: bash
         run: |
-          sudo apt install -y wine
+          apt install wine
           curl -L https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -o VulkanSDK.exe
           wine VulkanSDK.exe /S /D=C:/VulkanSDK
 
