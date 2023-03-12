@@ -193,12 +193,13 @@ jobs:
           cp -f -rp *.dll ~/.nimble/bin
           cp -f -rp optional/*.dll ~/.nimble/bin
           cd ..
-      
+    
       - name: Install Vulkan SDK
-        uses: humbletim/install-vulkan-sdk@v1.1.1
+        uses: jakoch/install-vulkan-sdk-action@main
         with:
-          version: 1.3.204.0
-          cache: true
+          # You can set the Vulkan SDK version to download.
+          # Defaults to latest version, if version not set.
+          version: 1.3.231.1
 
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
