@@ -146,15 +146,16 @@ jobs:
         run: |
           Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-      - name: Install MinGW-w64
-        uses: mback2k/actions-mingw-w64@v2
-        with:
-          arch: x86_64
-          
-      - name: Install Objective-C compiler
+      - name: Install MinGW
         run: |
-          choco install mingw -params '"/threads=posix /experimental /enable-objc-gc"' -y
-          setx PATH "$env:ProgramFiles\mingw-w64\$(Get-ProcessorBits)\mingw64\bin;$env:PATH" -m
+          choco install mingw
+          choco install mingw-get
+          mingw-get install mingw-developer-toolkit
+          mingw-get install mingw32-base
+          mingw-get install mingw32-gcc-g++
+          mingw-get install mingw32-gcc-objc
+          mingw-get install msys-base
+          set PATH=C:\tools\mingw32\bin;C:\tools\mingw32\msys\1.0\bin;%PATH%
         
       - name: Download GLEW
         run: |
