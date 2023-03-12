@@ -206,6 +206,7 @@ jobs:
           mkdir -p C:\ProgramData\chocolatey\lib\wine\tools\
           move winehq.repo C:\ProgramData\chocolatey\lib\wine\tools\
           move winehq.key C:\ProgramData\chocolatey\lib\wine\tools\
+          choco source add -n winehq -s https://dl.winehq.org/wine-builds/windows/ -y
           choco install -y wine
           cd ..
       
