@@ -194,16 +194,28 @@ jobs:
           cp -f -rp optional/*.dll ~/.nimble/bin
           cd ..
 
-      - name: Install Wine
+      - name: Download Wine
         run: |
           mkdir wine
           cd wine
           curl -L -o winehq.key https://dl.winehq.org/wine-builds/winehq.key
-          gpg --import winehq.key
           curl -L -o winehq.repo https://dl.winehq.org/wine-builds/winehq.repo
+          
+      - name: Import WineHQ Key
+        run: gpg --import winehq.key
+
+      - name: Install Wine Dependencies
+        run: |
+          powershell.exe -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolateyInstall.ps1'))"
+          choco install -y libpng zlib libxml2 gnutls
+        
+      - name: Install Wine
+        run: |
+          mkdir -p C:\ProgramData\chocolatey\lib\wine\tools\
           move winehq.repo C:\ProgramData\chocolatey\lib\wine\tools\
           move winehq.key C:\ProgramData\chocolatey\lib\wine\tools\
-          choco install wine
+          choco install -y wine
+          cd ..
       
       - name: Download Vulkan SDK
         shell: bash
