@@ -147,36 +147,36 @@ jobs:
         run: |
           curl -L https://sourceforge.net/projects/glew/files/glew/2.1.0/glew-2.1.0-win32.zip -o glew.zip
           unzip -q glew.zip -d glew
-          cp -f -rp glew\glew-2.1.0\include glew\include
-          cp -f -rp glew\glew-2.1.0\lib\Release\x64\glew32.lib glew\lib\Release\x64
+          cp -f -rp glew/glew-2.1.0/include glew/include
+          cp -f -rp glew/glew-2.1.0/lib\Release/x64/glew32.lib glew/lib/Release/x64
 
       - name: Download SDL2
         shell: bash
         run: |
           curl -L https://github.com/libsdl-org/SDL/releases/download/release-2.26.4/SDL2-2.26.4-win32-x64.zip -o SDL2.zip
           unzip -q SDL2.zip -d SDL2
-          cp -f -rp SDL2\SDL2-2.26.4\lib\x64\*.dll ~/.nimble/bin
+          cp -f -rp SDL2/SDL2-2.26.4/lib/x64/*.dll ~/.nimble/bin
       
       - name: Download SDL2-ttf
         shell: bash
         run: |
           curl -L https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.20.2/SDL2_ttf-2.20.2-win32-x64.zip -o SDL2_ttf.zip
           unzip -q SDL2_ttf.zip -d SDL2_ttf
-          cp -f -rp SDL2_ttf\SDL2_ttf-2.20.2\lib\x64\*.dll ~/.nimble/bin
+          cp -f -rp SDL2_ttf/SDL2_ttf-2.20.2/lib/x64/*.dll ~/.nimble/bin
 
       - name: Download SDL2-image
         shell: bash
         run: |
           curl -L https://github.com/libsdl-org/SDL_image/releases/download/release-2.6.3/SDL2_image-2.6.3-win32-x64.zip -o SDL2_image.zip
           unzip -q SDL2_image.zip -d SDL2_image
-          cp -f -rp SDL2_image\SDL2_image-2.6.3\lib\x64\*.dll ~/.nimble/bin
+          cp -f -rp SDL2_image/SDL2_image-2.6.3/lib/x64/*.dll ~/.nimble/bin
 
       - name: Download SDL2-mixer
         shell: bash
         run: |
           curl -L https://github.com/libsdl-org/SDL_mixer/releases/download/release-2.6.3/SDL2_mixer-2.6.3-win32-x64.zip -o SDL2_mixer.zip
           unzip -q SDL2_mixer.zip -d SDL2_mixer
-          cp -f -rp SDL2_mixer\SDL2_mixer-2.6.3\lib\x64\*.dll ~/.nimble/bin
+          cp -f -rp SDL2_mixer/SDL2_mixer-2.6.3/lib/x64/*.dll ~/.nimble/bin
 
       
       - name: Install Vulkan SDK
