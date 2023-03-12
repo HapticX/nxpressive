@@ -199,7 +199,7 @@ jobs:
         shell: bash
         run: |
           curl -L https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -o VulkanSDK.exe
-          wine VulkanSDK.exe /S /D=C:/VulkanSDK
+          VulkanSDK.exe /S /D=C:/VulkanSDK
 
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
