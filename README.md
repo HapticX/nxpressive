@@ -35,8 +35,10 @@ It's simple to use and has flexible syntax :smiley:
   - [SDL2-ttf](https://github.com/libsdl-org/SDL_ttf/)
   - [SDL2-mixer](https://github.com/libsdl-org/SDL_mixer)
   - [SDL2-image](https://github.com/libsdl-org/SDL_image)
+
   Also Install [GLEW library](https://glew.sourceforge.net/)
   And [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#windows)
+  
 - Unix
   - SDL2
     ```bash
