@@ -21,7 +21,8 @@ when defined(vulkan):
     ../core/vkmanager
 else:
   import
-    ../thirdparty/opengl
+    ../thirdparty/opengl,
+    ../thirdparty/opengl/glu
 
 
 
@@ -91,6 +92,8 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
   else:
     # Initializes OpenGL
     result.context = window.glCreateContext()
+    when defined(useGlew):
+      assert glewInit().uint32 == 0
     glShadeModel(GL_SMOOTH)
     glClear(GL_COLOR_BUFFER_BIT)
     glEnable(GL_COLOR_MATERIAL)
@@ -107,9 +110,8 @@ proc reshape*(width, height: cint) =
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glFrustumf(-width.float/2f, width.float/2f, -height.float/2f, height.float/2f, 1.5f, 20f)
+    glOrtho(0f, width.float, height.float, 0f, 0f, 1000f)
     glMatrixMode(GL_MODELVIEW)
-
 
 func title*(app: App): string =
   ## Returns app title
@@ -329,7 +331,6 @@ proc display(app: App) =
     glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    glLoadIdentity()
 
   # Draw current scene
   app.current.draw()
@@ -354,6 +355,7 @@ proc run*(app: var App) =
   app.running = true
   app.scene_stack.add(app.current)
   app.current.enter()
+  reshape(app.w, app.h)
 
   when defined(debug):
     echo "App started"

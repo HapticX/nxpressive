@@ -44,39 +44,34 @@ func childIndex*(self, node: HNodeRef): int =
   -1
 
 
-method addChild*(self, node: HNodeRef) {.base, noSideEffect.} =
+method addChild*(self: HNodeRef, nodes: varargs[HNodeRef]) {.base, noSideEffect.} =
   ## Adds child `node` into `self`
   ## 
   ## Swaps/moves nodes in tree, if parent of `self` is `node`.
-  if node == self:
-    raise newException(SelfAdditionDefect, "Can not add node to self.")
+  for node in nodes:
+    if node == self:
+      raise newException(SelfAdditionDefect, "Can not add node to self.")
 
-  # Self parent is node
-  if self.parent == node:
-    node.parent.children.add(self)
-    self.children.add(node)
-    node.parent.children.delete(node.parent.childIndex(node))
-    node.children.delete(node.childIndex(self))
-    self.parent = node.parent
-    node.parent = self
-  # Node has not parent
-  elif isNil(node.parent):
-    self.children.add(node)
-    node.parent = self
-  # Node already has other parent
-  elif node.parent != self:
-    node.parent.children.delete(node.parent.childIndex(node))
-    self.children.add(node)
-    node.parent = self
-  # Self already has node child
-  else:
-    raise newException(AlreadyHasNodeDefect, fmt"{self.tag} already has {node.tag} in children.")
-
-
-method addChild*(self: HNodeRef, args: varargs[HNodeRef]) {.base, noSideEffect.} =
-  ## Add new nodes into `self`
-  for node in args:
-    self.addChild(node)
+    # Self parent is node
+    if self.parent == node:
+      node.parent.children.add(self)
+      self.children.add(node)
+      node.parent.children.delete(node.parent.childIndex(node))
+      node.children.delete(node.childIndex(self))
+      self.parent = node.parent
+      node.parent = self
+    # Node has not parent
+    elif isNil(node.parent):
+      self.children.add(node)
+      node.parent = self
+    # Node already has other parent
+    elif node.parent != self:
+      node.parent.children.delete(node.parent.childIndex(node))
+      self.children.add(node)
+      node.parent = self
+    # Self already has node child
+    else:
+      raise newException(AlreadyHasNodeDefect, fmt"{self.tag} already has {node.tag} in children.")
 
 
 method insertChild*(self, other: HNodeRef, idx: int) {.base, noSideEffect.} =
