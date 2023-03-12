@@ -197,11 +197,12 @@ jobs:
       - name: Install wine
         run: sudo apt-get install wine
       
-      - name: Install Vulkan SDK
+      - name: Download Vulkan SDK
         shell: bash
-        run: |
-          curl -L https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -o VulkanSDK.exe
-          wine VulkanSDK.exe /S /D=C:/VulkanSDK
+        run: curl -L https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -o VulkanSDK.exe
+      
+      - name: Install Vulkan SDK
+        run: VulkanSDK.exe /S /D=C:/VulkanSDK
 
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
