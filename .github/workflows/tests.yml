@@ -147,18 +147,10 @@ jobs:
         run: |
           Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-      - name: Install MinGW
-        run: |
-          choco install mingw
-          echo "C:\tools\mingw64\bin" >> $GITHUB_PATH
-          choco install mingw-get
-          mingw-get install mingw-developer-toolkit
-          mingw-get install mingw32-base
-          mingw-get install mingw32-gcc-g++
-          mingw-get install mingw32-gcc-objc
-          mingw-get install msys-base
-          echo "C:\tools\mingw32\bin" >> $GITHUB_PATH
-          echo "C:\tools\mingw32\msys\1.0\bin" >> $GITHUB_PATH
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
         
       - name: Download GLEW
         shell: pwsh
@@ -211,8 +203,6 @@ jobs:
             nim c -d:useGlew --passC:"-flto -useGlew" --passC:"-Iglew\include" --passL:"-Lglew\lib\Release\x64 -lglew32 -lopengl32" $file
             echo "# ---===    Testing via C++ backend [$file]    ===--- #"
             nim cpp -d:useGlew --passC:"-flto -useGlew" --passC:"-Iglew\include" --passL:"-Lglew\lib\Release\x64 -lglew32 -lopengl32" $file
-            echo "# ---===    Testing via ObjC backend [$file]    ===--- #"
-            nim objc  -d:useGlew --passC:"-flto -useGlew" --passC:"-Iglew\include" --passL:"-Lglew\lib\Release\x64 -lglew32 -lopengl32" $file
             echo "# ---===    Testing via JS backend [$file]    ===--- #"
             nim js --noMain --app:lib $file
           done
@@ -226,7 +216,5 @@ jobs:
             nim c -d:vulkan $file
             echo "# ---===    Testing via C++ backend [$file]    ===--- #"
             nim cpp -d:vulkan $file
-            echo "# ---===    Testing via ObjC backend [$file]    ===--- #"
-            nim objc -d:vulkan $file
           done
         shell: bash
