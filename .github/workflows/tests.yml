@@ -194,8 +194,16 @@ jobs:
           cp -f -rp optional/*.dll ~/.nimble/bin
           cd ..
 
-      - name: Install wine
-        run: sudo apt-get install wine
+      - name: Install Wine
+        run: |
+          mkdir wine
+          cd wine
+          curl -L -o winehq.key https://dl.winehq.org/wine-builds/winehq.key
+          gpg --import winehq.key
+          curl -L -o winehq.repo https://dl.winehq.org/wine-builds/winehq.repo
+          move winehq.repo C:\ProgramData\chocolatey\lib\wine\tools\
+          move winehq.key C:\ProgramData\chocolatey\lib\wine\tools\
+          choco install wine
       
       - name: Download Vulkan SDK
         shell: bash
