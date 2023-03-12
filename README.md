@@ -36,15 +36,25 @@ It's simple to use and has flexible syntax :smiley:
   - [SDL2-mixer](https://github.com/libsdl-org/SDL_mixer)
   - [SDL2-image](https://github.com/libsdl-org/SDL_image)
 
-  Also Install [GLEW library](https://glew.sourceforge.net/)
+  Also Install [GLEW library](https://glew.sourceforge.net/)  
   And [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#windows)
-  
+
 - Unix
   - SDL2
     ```bash
     sudo apt install --fix-missing -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
     ```
   - [Vulkan SDK](https://vulkan.lunarg.com/sdk/home#linux)
+    ```bash
+    wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+    sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-1.3.239-jammy.list https://packages.lunarg.com/vul1.3.239/lunarg-vulkan-1.3.239-jammy.list
+    sudo apt update
+    sudo apt install -y vulkan-sdk
+    ```
+  - [GLEW library](https://glew.sourceforge.net/) 
+    ```bash
+    sudo apt install -y libglew-dev
+    ``` 
 ### Engine
 ```bash
 nimble install https://github.com/HapticX/engine
