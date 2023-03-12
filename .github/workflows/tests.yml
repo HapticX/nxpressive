@@ -193,29 +193,12 @@ jobs:
           cp -f -rp *.dll ~/.nimble/bin
           cp -f -rp optional/*.dll ~/.nimble/bin
           cd ..
-
-      - name: Install Wine
-        run: |
-          mkdir wine
-          cd wine
-          curl -L -o winehq.key https://dl.winehq.org/wine-builds/winehq.key
-          curl -L -o winehq.repo https://dl.winehq.org/wine-builds/winehq.repo
-          gpg --import winehq.key
-          powershell.exe -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/chocolatey/choco/master/src/chocolateyInstall.ps1'))"
-          choco install -y libpng zlib libxml2 gnutls
-          mkdir -p C:\ProgramData\chocolatey\lib\wine\tools\
-          move winehq.repo C:\ProgramData\chocolatey\lib\wine\tools\
-          move winehq.key C:\ProgramData\chocolatey\lib\wine\tools\
-          choco source add -n winehq -s https://dl.winehq.org/wine-builds/windows/ -y
-          choco install -y wine
-          cd ..
-      
-      - name: Download Vulkan SDK
-        shell: bash
-        run: curl -L https://sdk.lunarg.com/sdk/download/latest/windows/vulkan-sdk.exe -o VulkanSDK.exe
       
       - name: Install Vulkan SDK
-        run: VulkanSDK.exe /S /D=C:/VulkanSDK
+        uses: humbletim/install-vulkan-sdk@v1.1.1
+        with:
+          version: 1.3.204.0
+          cache: true
 
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
