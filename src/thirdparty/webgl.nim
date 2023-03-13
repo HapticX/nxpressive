@@ -343,8 +343,8 @@ proc bufferData*(gl:WebGLRenderingContext, target:uint|BufferEnum, data:Int32Arr
 proc bufferSubData*(gl:WebGLRenderingContext,target:uint, offset:int64, data:auto) 
   ## Updates buffer data starting at a passed offset.
   
-proc getParameter* (gl:WebGLRenderingContext,pname:uint):auto 
-  ## Returns a value for the passed parameter name.
+# proc getParameter* (gl:WebGLRenderingContext,pname:uint):auto 
+#   ## Returns a value for the passed parameter name.
 
 proc activeTexture* (gl:WebGLRenderingContext, texture:auto)  
   ## Selects the active texture unit.
@@ -361,11 +361,11 @@ proc getProgramParameter* (gl:WebGLRenderingContext,program:WebGLProgram, pname:
 proc getBufferParameter* (gl:WebGLRenderingContext,target, pname:uint): auto  
   ## Returns information about the buffer.
 
-proc getFramebufferAttachmentParameter* (gl:WebGLRenderingContext,target, attachment, pname:uint):auto  
-  ## Returns information about the framebuffer.
+# proc getFramebufferAttachmentParameter* (gl:WebGLRenderingContext,target, attachment, pname:uint):auto  
+#  ## Returns information about the framebuffer.
 
-proc getRenderbufferParameter* (gl:WebGLRenderingContext,target, pname:uint):auto  
-  ## Returns information about the framebuffer.
+# proc getRenderbufferParameter* (gl:WebGLRenderingContext,target, pname:uint):auto  
+#   ## Returns information about the framebuffer.
 
 proc getTexParameter* (gl:WebGLRenderingContext,target:uint,pname:uint): auto  
   ## Returns information about the texture.
@@ -373,8 +373,8 @@ proc getTexParameter* (gl:WebGLRenderingContext,target:uint,pname:uint): auto
 proc getShaderParameter* (gl:WebGLRenderingContext,shader:WebGLShader, pname:uint):int  
   ## Returns information about the shader.
 
-proc getUniform* (gl:WebGLRenderingContext,program:WebGLProgram, location:WebGLUniformLocation):auto  
-  ## Returns the value of a uniform variable at a given location.
+# proc getUniform* (gl:WebGLRenderingContext,program:WebGLProgram, location:WebGLUniformLocation):auto  
+#   ## Returns the value of a uniform variable at a given location.
 
 proc getVertexAttrib*(gl:WebGLRenderingContext,index:uint, pname:uint):WebGLBuffer 
   ## Returns information about a vertex attribute at a given position.
