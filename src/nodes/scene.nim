@@ -20,11 +20,11 @@ proc newHScene*(tag: string = "HScene"): HSceneRef =
   defaultNode(HSceneRef)
 
 
-method draw*(self: HSceneRef) =
+method draw*(self: HSceneRef, w, h: float) =
   ## Draws all children
-  procCall self.HNodeRef.draw()
+  procCall self.HNodeRef.draw(w, h)
   for node in self.iter():
-    node.draw()
+    node.draw(w, h)
 
 
 method handleEvent*(self: HSceneRef, event: InputEvent) =

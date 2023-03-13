@@ -23,5 +23,8 @@ suite "Drawing":
     
     var canvas = newHCanvas()
     scene.addChild(canvas)
+    canvas.drawRect(128, 256, 16, 96, RedClr)
+    canvas.drawRect(128, 0, 128, 96, BlueClr)
+    canvas.drawRect(130, 64, 128, 256, newColor(0, 1, 0, 0.5))
 
     app.run()

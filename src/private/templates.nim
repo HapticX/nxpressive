@@ -12,6 +12,7 @@ template defaultNode*(node_type: untyped): untyped =
     on_destroy: default_event_handler,
     on_enter: default_event_handler,
     on_exit: default_event_handler,
+    on_process: default_event_handler,
     parent: nil,
     pause_behavior: PauseBehavior.Inherit
   )

@@ -30,7 +30,7 @@ macro `@`*(node: HNodeRef, event, code: untyped): untyped =
   let ev = ident(evname)
 
   case evname:
-  of "on_ready", "on_destroy", "on_enter", "on_exit":
+  of "on_ready", "on_destroy", "on_enter", "on_exit", "on_process":
     result = quote do:
       `node`.`ev` = proc(): void =
         `code`

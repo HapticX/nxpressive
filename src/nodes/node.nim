@@ -23,6 +23,7 @@ type
     on_destroy*: HNodeEvent  ## Calls when node is destroyed
     on_enter*: HNodeEvent  ## Calls when entered into scene
     on_exit*: HNodeEvent  ## Calls when exited from scene
+    on_process*: HNodeEvent  ## Calls every frame
   HNodeRef* = ref HNode
 
 
@@ -91,7 +92,7 @@ method insertChild*(self, other: HNodeRef, idx: int) {.base, noSideEffect.} =
 
 
 # ---=== Abstract method ===--- #
-method draw*(self: HNodeRef) {.base.} =
+method draw*(self: HNodeRef, w, h: float) {.base.} =
   ## Abstract method for drawing
   if self.is_ready:
     self.on_ready()
