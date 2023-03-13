@@ -42,6 +42,7 @@ type
       vkmanager: VulkanManager
     elif not defined(js):
       context: GlContextPtr
+    when not defined(js):
       window: WindowPtr
     current, main*: HSceneRef
     paused*: bool
