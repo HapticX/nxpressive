@@ -358,8 +358,8 @@ proc activeTexture* (gl:WebGLRenderingContext, texture:auto)
 proc getProgramParameter* (gl:WebGLRenderingContext,program:WebGLProgram, pname:uint):int 
   ## Returns information about the program.
 
-proc getBufferParameter* (gl:WebGLRenderingContext,target, pname:uint): auto  
-  ## Returns information about the buffer.
+# proc getBufferParameter* (gl:WebGLRenderingContext,target, pname:uint): auto  
+#   ## Returns information about the buffer.
 
 # proc getFramebufferAttachmentParameter* (gl:WebGLRenderingContext,target, attachment, pname:uint):auto  
 #  ## Returns information about the framebuffer.
@@ -367,8 +367,8 @@ proc getBufferParameter* (gl:WebGLRenderingContext,target, pname:uint): auto
 # proc getRenderbufferParameter* (gl:WebGLRenderingContext,target, pname:uint):auto  
 #   ## Returns information about the framebuffer.
 
-proc getTexParameter* (gl:WebGLRenderingContext,target:uint,pname:uint): auto  
-  ## Returns information about the texture.
+# proc getTexParameter* (gl:WebGLRenderingContext,target:uint,pname:uint): auto  
+#   ## Returns information about the texture.
 
 proc getShaderParameter* (gl:WebGLRenderingContext,shader:WebGLShader, pname:uint):int  
   ## Returns information about the shader.
