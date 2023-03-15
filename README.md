@@ -21,8 +21,7 @@ It's simple to use and have a lot of sugar in syntax :eyes:.
 - Support `C`/`Cpp`/`ObjC`/`JS` backends;
 - Support earlier versions (`1.0.0` and above);
 - Support graphics backends:
-  - `OpenGL` for `C`/`Cpp`/`ObjC`;
-  - `Vulkan` for `C`/`Cpp`/`ObjC`;
+  - `OpenGL`/`Vulkan` for `C`/`Cpp`/`ObjC`;
   - `WebGl` for `JS`.
 - Event handling via `@` macro;
 

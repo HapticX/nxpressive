@@ -90,7 +90,7 @@ proc compile*(self: ShaderMaterial) =
     deallocCStringArray(vertexSource)
     deallocCStringArray(fragmentSource)
   else:
-    gl.shaderSource(self.vertexShader, self.vertexSource)
+    gl.shaderSource(self.vertexShader, self.vertexCode)
     gl.shaderSource(self.fragmentShader, self.fragmentCode)
 
     gl.compileShader(self.vertexShader)
