@@ -5,7 +5,8 @@ import
   ./node,
   ../private/templates,
   ../core/enums,
-  ../core/color
+  ../core/color,
+  ../core/material
 
 
 when defined(vulkan):
@@ -30,6 +31,7 @@ type
     x*, y*: float
     w*, h*: float
     screenw*, screenh*: float
+    material*: ShaderMaterial
     when defined(vulkan):
       discard
     elif not defined(js):
@@ -49,6 +51,7 @@ proc newHCanvas*(tag: string = "HCanvas"): HCanvasRef =
   result.y = 0f
   result.w = 512f
   result.h = 512f
+  result.material = newShaderMaterial()
   when defined(vulkan):
     discard
   elif not defined(js):
@@ -62,6 +65,7 @@ proc newHCanvas*(tag: string = "HCanvas"): HCanvasRef =
 
 method destroy*(self: HCanvasRef) =
   ## Destroys canvas
+  self.material.destroy()
   when defined(vulkan):
     discard
   elif not defined(js):

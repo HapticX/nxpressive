@@ -10,12 +10,6 @@ else:
     ../app/app
 
 
-const
-  fragTexShader* = "precision mediump float;uniform sampler2D tex;uniform vec2 res;void main(){gl_FragColor=texture2D(tex,gl_FragCoord.xy/res);}"
-  fragClrShader* = "precision mediump float;uniform vec4 clr;void main(){gl_FragColor=clr;}"
-  vertexShader* = "attribute vec2 pos;void main(){gl_Position=vec4(pos,0,1);}"
-
-
 when not defined(js):
   proc emptyTexture2D*(internalFormat: GLenum, format: GLenum, w, h: GLsizei): GLuint =
     ## Creates an empty 2d texture and returns it
