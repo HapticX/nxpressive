@@ -4,6 +4,10 @@
 when defined(vulkan):
   import
     ../thirdparty/vulkan
+  
+  const
+    DefaultVertexCode* = ""
+    DefaultFragmentCode* = ""
 elif not defined(js):
   import
     ../thirdparty/opengl
