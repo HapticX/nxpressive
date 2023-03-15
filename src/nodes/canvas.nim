@@ -131,22 +131,23 @@ proc drawRect*(self: HCanvasRef, x, y, w, h: float, clr: Color) =
     glRectf(x, y, x+w, y+h)
     glBindFramebuffer(GL_FRAMEBUFFER, 0)
   else:
-    gl.bindFramebuffer(FRAMEBUFFER, self.fbo)
-    gl.blendColor(clr.r, clr.g, clr.b, clr.a)
-    let
-      vertices = gl.createBuffer()
-      indices = [3, 2, 1, 3, 1, 0]
-      vertex = gl.createShader(VERTEX_SHADER)
-      fragment = gl.createShader(FRAGMENT_SHADER)
-      program = gl.createProgram()
-    gl.shaderSource(vertex, vertexShader)
-    gl.shaderSource(fragment, fragTexShader)
-    gl.compileShader(vertex)
-    gl.compileShader(fragment)
+    discard
+    # gl.bindFramebuffer(FRAMEBUFFER, self.fbo)
+    # gl.blendColor(clr.r, clr.g, clr.b, clr.a)
+    # let
+    #   vertices = gl.createBuffer()
+    #   indices = [3, 2, 1, 3, 1, 0]
+    #   vertex = gl.createShader(VERTEX_SHADER)
+    #   fragment = gl.createShader(FRAGMENT_SHADER)
+    #   program = gl.createProgram()
+    # gl.shaderSource(vertex, vertexShader)
+    # gl.shaderSource(fragment, fragTexShader)
+    # gl.compileShader(vertex)
+    # gl.compileShader(fragment)
 
-    gl.attachShader(program, vertex)
-    gl.attachShader(program, fragment)
+    # gl.attachShader(program, vertex)
+    # gl.attachShader(program, fragment)
 
-    gl.linkProgram(program)
+    # gl.linkProgram(program)
 
-    gl.bindFramebuffer(FRAMEBUFFER, nil)
+    # gl.bindFramebuffer(FRAMEBUFFER, nil)
