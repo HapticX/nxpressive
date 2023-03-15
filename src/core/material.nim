@@ -22,7 +22,8 @@ elif not defined(js):
 else:
   import
     ../app/app,
-    ../thirdparty/webgl
+    ../thirdparty/webgl,
+    ../thirdparty/webgl/consts
   
   const
     DefaultVertexCode* = """
