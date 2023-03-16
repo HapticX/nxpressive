@@ -155,7 +155,7 @@ func title*(app: App): string =
   ## Returns app title
   app.title
 
-proc `title=`*(app: var App, new_title: string): string =
+proc `title=`*(app: var App, new_title: string) =
   ## Changes app title
   app.title = new_title
   when not defined(js):
@@ -289,11 +289,13 @@ when not defined(js):
     last_event.key = k
     last_event.key_int = key
     last_event.pressed = pressed
+    current_event = last_event
 
   proc textinput(app: App, ev: TextInputEventPtr) =
     ## Notify input system about keyboard event
     last_event.kind = InputEventType.Text
     last_event.key = toRunes(join(ev.text))[0].toUTF8()
+    current_event = last_event
 
   proc mousebutton(app: App, btn, x, y: cint, pressed: bool) =
     ## Notify input system about mouse button event
@@ -302,6 +304,7 @@ when not defined(js):
     last_event.pressed = pressed
     last_event.x = x.float
     last_event.y = y.float
+    current_event = last_event
 
   proc wheel(app: App, x, y: cint) =
     ## Notify input system about mouse wheel event
@@ -309,6 +312,7 @@ when not defined(js):
     last_event.kind = InputEventType.Wheel
     last_event.xrel = x.float
     last_event.yrel = y.float
+    current_event = last_event
 
   proc motion(app: App, x, y, xrel, yrel: cint) =
     ## Notify input system about mouse motion event
@@ -317,17 +321,20 @@ when not defined(js):
     last_event.y = y.float
     last_event.xrel = xrel.float
     last_event.yrel = yrel.float
+    current_event = last_event
 
   proc joyaxismotion(app: App, axis: uint8, which: int, val: int16) =
     ## Notify input system about joystick event
     last_event.kind = InputEventType.JAxisMotion
     last_event.axis = axis
     last_event.val = val.float
+    current_event = last_event
 
   proc joyhatmotion(app: App, axis: uint8, which: int) =
     ## Notify input system about joystick event
     last_event.kind = InputEventType.JHatMotion
     last_event.axis = axis
+    current_event = last_event
 
   proc joybutton(app: App, button_index: cint, pressed: bool) =
     ## Notify input system about joystick event
@@ -335,6 +342,7 @@ when not defined(js):
     last_event.kind = InputEventType.JButton
     last_event.button_index = button_index
     last_event.pressed = pressed
+    current_event = last_event
 
   proc onReshape(userdata: pointer, event: ptr Event): Bool32 =
     var
@@ -352,17 +360,63 @@ when not defined(js):
         discard
     False32
   {.pop.}
+else:
+  proc mousemotion(x, y, xrel, yrel: float) =
+    last_event.kind = InputEventType.Motion
+    last_event.x = x
+    last_event.y = y
+    last_event.xrel = xrel
+    last_event.yrel = yrel
+    current_event = last_event
+  
+  proc mouseclick(x, y: float, pressed: bool) =
+    check(InputEventType.Mouse, last_event.pressed and pressed, pressed)
+    last_event.kind = InputEventType.Mouse
+    last_event.pressed = pressed
+    last_event.x = x
+    last_event.y = y
+    current_event = last_event
 
-  proc handleEvent(app: var App) =
-    ## Handles SDL2 events
+  proc wheel(x, y: float) =
+    ## Notify input system about mouse wheel event
+    check(InputEventType.Wheel, false, false)
+    last_event.kind = InputEventType.Wheel
+    last_event.xrel = x
+    last_event.yrel = y
+    current_event = last_event
+  proc touch(x, y: float, pressed: bool) =
+    ## Notify input system about finger touch
+    last_event.kind = InputEventType.Touch
+    last_event.x = x
+    last_event.y = y
+    current_event = last_event
+  proc keyboard(code: cint, pressed: bool) =
+    ## Notify input system about keyboard event
+    ## `key` - key code
+    check(InputEventType.Keyboard, last_event.pressed, true)
+    let key = $Rune(code)
+    if pressed:
+      pressed_keys.add(code)
+    else:
+      for i in pressed_keys.low..pressed_keys.high:
+        if pressed_keys[i] == code:
+          pressed_keys.del(i)
+          break
+    last_event.kind = InputEventType.Keyboard
+    last_event.key = key
+    last_event.key_int = code
+    last_event.pressed = pressed
+    current_event = last_event
+
+proc handleEvent(app: var App) =
+  ## Handles events
+  when not defined(js):
     # Handle joysticks
     var joystick: JoystickPtr
     discard joystickEventState(SDL_ENABLE)
     joystick = joystickOpen(0)
-
     # Handle events
     var event = defaultEvent
-
     while sdl2.pollEvent(event):
       case event.kind
       of QuitEvent:
@@ -399,48 +453,9 @@ when not defined(js):
         joyhatmotion(app, ev.hat, ev.which)
       else:
         discard
-else:
-  proc mousemotion(x, y, xrel, yrel: float) =
-    last_event.kind = InputEventType.Motion
-    last_event.x = x
-    last_event.y = y
-    last_event.xrel = xrel
-    last_event.yrel = yrel
-  
-  proc mouseclick(x, y: float, pressed: bool) =
-    check(InputEventType.Mouse, last_event.pressed and pressed, pressed)
-    last_event.kind = InputEventType.Mouse
-    last_event.pressed = pressed
-    last_event.x = x
-    last_event.y = y
-
-  proc wheel(x, y: float) =
-    ## Notify input system about mouse wheel event
-    check(InputEventType.Wheel, false, false)
-    last_event.kind = InputEventType.Wheel
-    last_event.xrel = x
-    last_event.yrel = y
-  proc touch(x, y: float, pressed: bool) =
-    ## Notify input system about finger touch
-    last_event.kind = InputEventType.Touch
-    last_event.x = x
-    last_event.y = y
-  proc keyboard(code: cint, pressed: bool) =
-    ## Notify input system about keyboard event
-    ## `key` - key code
-    check(InputEventType.Keyboard, last_event.pressed, true)
-    let key = $Rune(code)
-    if pressed:
-      pressed_keys.add(code)
-    else:
-      for i in pressed_keys.low..pressed_keys.high:
-        if pressed_keys[i] == code:
-          pressed_keys.del(i)
-          break
-    last_event.kind = InputEventType.Keyboard
-    last_event.key = key
-    last_event.key_int = code
-    last_event.pressed = pressed
+  if current_event == last_event:
+    app.current.handleEvent(last_event)
+    current_event = default_input_event
 
 
 proc display(app: App) =
@@ -535,11 +550,11 @@ proc run*(app: var App) =
       });
       window.addEventListener('keyup', (ev) => {
         `keyboard`(ev.keyCode, false);
-        console.log(ev);
       });
 
       function mainLoop(time) {
         `display`(`app`);
+        `handleEvent`(`app`);
         requestAnimationFrame(mainLoop);
       }
       requestAnimationFrame(mainLoop);

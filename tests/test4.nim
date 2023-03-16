@@ -20,6 +20,19 @@ suite "Drawing":
       echo "enter"
     scene@exit():
       echo "exit"
+
+    scene@input(ev):
+      if ev.isInputEventMouse() and ev.pressed:
+        echo "click!"
+
+    
+    var i = 0
+    scene@process():
+      if i < 10:
+        inc i
+      else:
+        i = 0
+        app.title = app.title[1..^1] & app.title[0]
     
     var canvas = newHCanvas()
     scene.addChild(canvas)

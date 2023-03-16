@@ -7,11 +7,13 @@ import
   ../core/input,
   ../core/exceptions,
   ../core/enums,
+  ../core/input,
   ../private/templates
 
 
 type
   HNodeEvent* = proc(): void
+  HNodeInputEvent* = proc(event: InputEvent): void
   HNode* = object of RootObj
     is_ready*: bool
     pause_behavior*: PauseBehavior
@@ -24,11 +26,13 @@ type
     on_enter*: HNodeEvent  ## Calls when entered into scene
     on_exit*: HNodeEvent  ## Calls when exited from scene
     on_process*: HNodeEvent  ## Calls every frame
+    on_input*: HNodeInputEvent  ## Calls on input
   HNodeRef* = ref HNode
 
 
 let
   default_event_handler* = proc(): void = discard
+  default_input_event_handler* = proc(event: InputEvent): void = discard
 
 
 proc newHNode*(tag: string = "HNode"): HNodeRef =

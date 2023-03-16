@@ -23,13 +23,16 @@ proc newHScene*(tag: string = "HScene"): HSceneRef =
 method draw*(self: HSceneRef, w, h: float) =
   ## Draws all children
   procCall self.HNodeRef.draw(w, h)
+  self.on_process()
   for node in self.iter():
     node.draw(w, h)
 
 
 method handleEvent*(self: HSceneRef, event: InputEvent) =
   ## Handles event
+  self.on_input(event)
   for node in self.iter():
+    node.on_input(event)
     node.handleEvent(event)
 
 

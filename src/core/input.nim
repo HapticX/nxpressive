@@ -32,11 +32,14 @@ type
     name*, key*: string
 
 
+const default_input_event* = InputEvent()
+
 var
   actions: seq[InputAction] = @[]
   pressed_keys*: seq[cint] = @[]
   press_state*: cint = 0
   last_event* = InputEvent()
+  current_event* = InputEvent()
 
 
 {.push inline.}

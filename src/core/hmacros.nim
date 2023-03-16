@@ -34,6 +34,11 @@ macro `@`*(node: HNodeRef, event, code: untyped): untyped =
     result = quote do:
       `node`.`ev` = proc(): void =
         `code`
+  of "on_input":
+    let arg = event[1]
+    result = quote do:
+      `node`.`ev` = proc(`arg`: InputEvent): void =
+        `code`
 
 
 macro defineNode*(nodes: untyped): untyped =
