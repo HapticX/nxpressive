@@ -1,6 +1,8 @@
 #[
   Provides some utils for OpenGl
 ]#
+import ./material
+
 when not defined(js):
   import ../thirdparty/opengl
 else:
@@ -96,3 +98,40 @@ else:
 
     gl.bindFramebuffer(FRAMEBUFFER, nil)
     fbo
+  
+  proc drawQuad*(material: ShaderMaterial, x, y, w, h: float) =
+    var
+      vertices = [
+      # x, y      r   g   b   a
+        x+w, y+h, 1f, 0f, 1f, 1f,
+        x+w, y,   1f, 1f, 0f, 1f,
+        x,   y,   0f, 0f, 1f, 1f,
+        x,   y+h, 0f, 1f, 1f, 1f,
+      ]
+
+    if not material.isCompiled:
+      material.compile()
+    material.use()
+
+    var
+      vertexBuffer = gl.createBuffer()
+    gl.bindBuffer(ARRAY_BUFFER, vertexBuffer)
+    gl.bufferData(ARRAY_BUFFER, vertices, STATIC_DRAW)
+
+    var
+      pos = gl.getAttribLocation(material.program, "pos")  # vec2
+      clr = gl.getAttribLocation(material.program, "clr")  # vec4
+      uRes = gl.getUniformLocation(material.program, "u_res")  # float
+    
+    gl.enableVertexAttribArray(pos)
+    gl.enableVertexAttribArray(clr)
+    gl.vertexAttribPointer(pos, 2, FLOAT, false, 6*4, 0)
+    gl.vertexAttribPointer(clr, 4, FLOAT, false, 6*4, 2*4)
+
+    gl.uniform2f(uRes, gl.canvas.width.float, gl.canvas.height.float)
+
+    gl.drawArrays(TRIANGLE_FAN, 0, 4)
+
+    material.unuse()
+    gl.bindBuffer(ARRAY_BUFFER, nil)
+    gl.deleteBuffer(vertexBuffer)

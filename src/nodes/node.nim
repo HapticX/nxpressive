@@ -106,7 +106,6 @@ method handleEvent*(self: HNodeRef, event: InputEvent) {.base.} =
   ## Abstract method for handling events
   discard
 
-
 method destroy*(self: HNodeRef) {.base.} =
   ## Destroys node.
   ## This calls `destroyed` callback.
@@ -197,7 +196,7 @@ func deleteChild*(self: HNodeRef, idx: int) =
 
 
 # ---=== Operators ===--- #
-func `[]`*(self: HNodeRef, idx: int): HNodeRef =
+func `[]`*(self: HNodeRef, idx: int | BackwardsIndex | range): HNodeRef =
   ## Returns child at `idx` position.
   self.children[idx]
 
@@ -211,3 +210,8 @@ func `~`*(self: HNodeRef): string =
   for (lvl, node) in self.iterLvl():
     let padding = "  ".repeat(lvl)
     result &= fmt"{padding}{node}" & "\n"
+
+
+func treeRepr*(self: HNodeRef): string =
+  ## Alias for `~` func
+  ~self

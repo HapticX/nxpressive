@@ -150,6 +150,7 @@ else:
       canvas.width = w
       canvas.height = h
     gl.viewport(0, 0, w, h)
+  reshape()
 
 func title*(app: App): string =
   ## Returns app title
@@ -343,6 +344,13 @@ when not defined(js):
     last_event.button_index = button_index
     last_event.pressed = pressed
     current_event = last_event
+  
+  proc touch(x, y: float, pressed: bool) =
+    ## Notify input system about finger touch
+    last_event.kind = InputEventType.Touch
+    last_event.x = x
+    last_event.y = y
+    current_event = last_event
 
   proc onReshape(userdata: pointer, event: ptr Event): Bool32 =
     var
@@ -451,6 +459,11 @@ proc handleEvent(app: var App) =
       of JoyHatMotion:
         let ev = EvJoyHat(event)
         joyhatmotion(app, ev.hat, ev.which)
+      of FingerDown, FingerUp, FingerMotion:
+        let
+          ev = EvTouchFinger(event)
+          finger = getTouchFinger(ev.touchID, ev.fingerID.cint)[]
+        touch(finger.x, finger.y, finger.pressure > 0f)
       else:
         discard
   if current_event == last_event:
@@ -525,6 +538,7 @@ proc run*(app: var App) =
     destroy(app.window)
     sdl2.quit()
   else:
+    reshape()
     {.emit: """
       window.addEventListener('resize', `reshape`);
       window.addEventListener('mousemove', (ev) => {
@@ -551,6 +565,7 @@ proc run*(app: var App) =
       window.addEventListener('keyup', (ev) => {
         `keyboard`(ev.keyCode, false);
       });
+      window.addEventListener('load', `reshape`);
 
       function mainLoop(time) {
         `display`(`app`);

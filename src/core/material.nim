@@ -8,6 +8,8 @@ when defined(vulkan):
   const
     DefaultVertexCode* = ""
     DefaultFragmentCode* = ""
+    DefaultTextureVertexCode* = """"""
+    DefaultTextureFragmentCode* = """"""
 elif not defined(js):
   import
     ../thirdparty/opengl
@@ -23,6 +25,8 @@ elif not defined(js):
     {
       gl_FragColor = vec4(1,1,1,1);
     }"""
+    DefaultTextureVertexCode* = """"""
+    DefaultTextureFragmentCode* = """"""
 else:
   import
     ../app/app,
@@ -31,19 +35,52 @@ else:
   
   const
     DefaultVertexCode* = """
-    attribute vec2 aVertexPosition;
-    varying vec2 vTexCoord;
-    void main() {
-      vTexCoord = aVertexPosition;
-      gl_Position = vec4(aVertexPosition, 0, 1);
-    }
-    """
-    DefaultFragmentShader* = """
-    precision mediump float;
-    varying vec2 vTexCoord;
-    void main() {
-      gl_FragColor = vec4(vTexCoord, 0, 1);
-    }"""
+      precision mediump float;
+
+      attribute vec2 pos;
+      attribute vec4 clr;
+      uniform vec2 u_res;
+
+      varying vec4 v_color;
+      
+      void main() {
+          gl_Position = vec4((pos / u_res) * 25.0, 0, 1);
+          v_color = clr;
+      }"""
+    DefaultFragmentCode* = """
+      precision mediump float;
+
+      varying vec4 v_color;
+
+      void main() {
+        gl_FragColor = vec4(1, 1, 1, 1);
+      }"""
+    DefaultTextureVertexCode* = """
+      precision mediump float;
+      
+      attribute vec2 UV;
+      attribute vec2 pos;
+      attribute vec4 clr;
+      uniform mat4 u_matrix;
+
+      varying vec2 v_tex_coords;
+      varying vec4 v_color;
+      
+      void main() {
+        gl_Position = vec4(pos, 0, 1) * u_matrix;
+        v_color = clr;
+        v_tex_coords = UV;
+      }"""
+    DefaultTextureFragmentCode* = """
+      precision mediump float;
+      
+      varying vec4 v_color;
+      varying vec2 v_tex_coords;
+      uniform sampler2D texture;
+      
+      void main() {
+        gl_FragColor = texture2D(texture, v_tex_coords) * v_color;
+      }"""
 
 
 type
@@ -53,18 +90,19 @@ type
     when defined(vulkan):
       discard
     elif not defined(js):
-      program: GLuint
+      program*: GLuint
       vertexShader: GLuint
       fragmentShader: GLuint
     else:
-      program: WebGLProgram
+      program*: WebGLProgram
       vertexShader: WebGLShader
       fragmentShader: WebGLShader
+    isCompiled: bool
 
 
 proc newShaderMaterial*: ShaderMaterial =
   ## Creates a new shader material
-  result = ShaderMaterial(vertexCode: DefaultVertexCode, fragmentCode: DefaultVertexCode)
+  result = ShaderMaterial(vertexCode: DefaultVertexCode, fragmentCode: DefaultFragmentCode)
   when defined(vulkan):
     discard
   elif not defined(js):
@@ -75,6 +113,9 @@ proc newShaderMaterial*: ShaderMaterial =
     result.program = gl.createProgram()
     result.vertexShader = gl.createShader(VERTEX_SHADER)
     result.fragmentShader = gl.createShader(FRAGMENT_SHADER)
+
+
+func isCompiled*(self: ShaderMaterial): bool = self.isCompiled
 
 
 proc compile*(self: ShaderMaterial) =
@@ -93,32 +134,30 @@ proc compile*(self: ShaderMaterial) =
     # free memory
     deallocCStringArray(vertexSource)
     deallocCStringArray(fragmentSource)
+
+    glAttachShader(self.program, self.vertexShader)
+    glAttachShader(self.program, self.fragmentShader)
+    glLinkProgram(self.program)
   else:
     gl.shaderSource(self.vertexShader, self.vertexCode)
     gl.shaderSource(self.fragmentShader, self.fragmentCode)
 
     gl.compileShader(self.vertexShader)
+    if not gl.getStatus(self.vertexShader):
+      echo gl.getShaderInfoLog(self.vertexShader)
+      echo self.vertexCode
     gl.compileShader(self.fragmentShader)
+    if not gl.getStatus(self.fragmentShader):
+      echo gl.getShaderInfoLog(self.fragmentShader)
+      echo self.fragmentCode
 
-
-proc link*(self: ShaderMaterial) =
-  ## Linking shaders to program
-  when defined(vulkan):
-    discard
-  elif not defined(js):
-    glAttachShader(self.program, self.vertexShader)
-    glAttachShader(self.program, self.fragmentShader)
-    glLinkProgram(self.program)
-
-    glDeleteShader(self.vertexShader)
-    glDeleteShader(self.fragmentShader)
-  else:
     gl.attachShader(self.program, self.vertexShader)
     gl.attachShader(self.program, self.fragmentShader)
-    gl.linkProgram(self.program)
 
-    gl.deleteShader(self.vertexShader)
-    gl.deleteShader(self.fragmentShader)
+    gl.linkProgram(self.program)
+    if not gl.getStatus(self.program):
+      echo gl.getProgramInfoLog(self.program)
+  self.isCompiled = true
 
 
 proc destroy*(self: ShaderMaterial) =
@@ -139,3 +178,13 @@ proc use*(self: ShaderMaterial) =
     glUseProgram(self.program)
   else:
     gl.useProgram(self.program)
+
+
+proc unuse*(self: ShaderMaterial) =
+  ## Use current program
+  when defined(vulkan):
+    discard
+  elif not defined(js):
+    glUseProgram(0)
+  else:
+    gl.useProgram(nil)

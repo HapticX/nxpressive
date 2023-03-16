@@ -20,11 +20,6 @@ suite "Drawing":
       echo "enter"
     scene@exit():
       echo "exit"
-
-    scene@input(ev):
-      if ev.isInputEventMouse() and ev.pressed:
-        echo "click!"
-
     
     var i = 0
     scene@process():
