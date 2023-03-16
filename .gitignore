@@ -3,12 +3,23 @@ nimblecache/
 htmldocs/
 .idea/
 
+# Android
+.gradle
+.DS_Store
+build/
+captures/
+.externalNativeBuild
+.cxx
+local.properties
+
+
 docs/
 
 *.log
 *.lg
 *.crashlog
 *.crash
+*.iml
 
 # Binaries
 *.exe

@@ -106,6 +106,8 @@ proc newApp*(title: string = "App", width: cint = 720, height: cint = 480): App 
       SDL_WINDOW_FOREIGN or SDL_WINDOW_INPUT_FOCUS or SDL_WINDOW_MOUSE_FOCUS
     )
     result.window = window
+  else:
+    document.title = title
 
   when defined(vulkan):
     # Initializes Vulkan API
@@ -161,14 +163,23 @@ proc `title=`*(app: var App, new_title: string): string =
   else:
     document.title = new_title
 
-func `icon=`*(app: var App, icon_path: cstring) =
+proc `icon=`*(app: var App, icon_path: cstring) =
   ## Changes app icon if available
   ## `icon_path` is path to icon
   when not defined(js):
     let icon = cast[SurfacePtr](image.load(icon_path))
     app.window.setIcon(icon)
   else:
-    discard
+    var favicon = document.getElementById("dyn-favicon")
+    if isNil(favicon):
+      favicon = document.createElement("link")
+      favicon.id = "dyn-favicon"
+    else:
+      document.head.removeChild(favicon)
+    favicon.setAttr("rel", "shortcut icon")
+    favicon.setAttr("href", icon_path)
+    document.head.appendChild(favicon)
+      
 
 
 func hasScene*(app: App, tag: string): bool =
@@ -529,7 +540,7 @@ proc run*(app: var App) =
 
       function mainLoop(time) {
         `display`(`app`);
-        requestAnimationFrame(mainLoop)
+        requestAnimationFrame(mainLoop);
       }
       requestAnimationFrame(mainLoop);
     """.}
