@@ -53,8 +53,8 @@ proc newHCanvas*(tag: string = "HCanvas"): HCanvasRef =
   result.w = 512f
   result.h = 512f
   result.material = newShaderMaterial()
-  # result.material.fragmentCode = DefaultTextureFragmentCode
-  # result.material.vertexCode = DefaultTextureVertexCode
+  result.material.fragmentCode = DefaultTextureFragmentCode
+  result.material.vertexCode = DefaultTextureVertexCode
   when defined(vulkan):
     discard
   elif not defined(js):
@@ -110,12 +110,8 @@ method draw*(self: HCanvasRef, w, h: float) =
     glEnd()
     glDisable(GL_TEXTURE_2D)
   else:
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-    gl.clearColor(0f, 0f, 0f, 1f)
-    gl.clear(COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT)
-    # drawQuad(self.material, 0, 0, 1f, 1f)
-    drawQuad(self.material, -0.5f, -0.5f, 0.5f, 0.5f)
-    # drawQuad(self.material, -500f, -500f, 500f, 500f)
+    drawTexQuad(self.material, self.tex, self.x, self.y, self.w, self.h, WhiteClr)
+    # drawQuad(self.material, self.x, self.y, self.w, self.h, WhiteClr)
 
   when defined(vulkan):
     discard
@@ -124,10 +120,7 @@ method draw*(self: HCanvasRef, w, h: float) =
     glBindTexture(GL_TEXTURE_2D, 0)
     glPopMatrix()
   else:
-    # self.material.unuse()
-    gl.bindBuffer(ARRAY_BUFFER, nil)
-    # gl.deleteBuffer(buffer)
-    gl.bindTexture(TEXTURE_2D, nil)
+    discard
 
 
 proc drawRect*(self: HCanvasRef, x, y, w, h: float, clr: Color) =
@@ -141,40 +134,9 @@ proc drawRect*(self: HCanvasRef, x, y, w, h: float, clr: Color) =
     glBindFramebuffer(GL_FRAMEBUFFER, 0)
   else:
     gl.bindFramebuffer(FRAMEBUFFER, self.fbo)
-    # gl.viewport(0, 0, self.w.int, self.h.int)
-    gl.clearColor(1f, 1f, 1f, 1f)
-    gl.clear(COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT)
-    var
-      vertices = [
-      # position  color
-        x,   y,   clr.r, clr.g, clr.b, clr.a,
-        x+w, y+h, clr.r, clr.g, clr.b, clr.a,
-        x+w, y+h, clr.r, clr.g, clr.b, clr.a,
-        x,   y,   clr.r, clr.g, clr.b, clr.a
-      ]
-      verticesBuffer = gl.createBuffer()
-      material = newShaderMaterial()
-    
-    gl.bindBuffer(ARRAY_BUFFER, verticesBuffer)
-    gl.bufferData(ARRAY_BUFFER, vertices, STATIC_DRAW)
-
-    material.compile()
-    material.use()
-
-    var
-      a_position = gl.getAttribLocation(material.program, "pos")
-      a_color = gl.getAttribLocation(material.program, "clr")
-
-    gl.enableVertexAttribArray(a_position)
-    gl.enableVertexAttribArray(a_color)
-
-    gl.vertexAttribPointer(a_position, 2, FLOAT, false, 20, 0)
-    gl.vertexAttribPointer(a_color, 3, FLOAT, false, 20, 8)
-
-    gl.drawArrays(TRIANGLE_FAN, 0, 4)
-
-    material.unuse()
-    gl.bindBuffer(ARRAY_BUFFER, nil)
-    gl.deleteBuffer(verticesBuffer)
+    gl.viewport(0, 0, self.w.int, self.h.int)
+    gl.scissor(0, 0, (self.w*2.0).int, (self.h*2.0).int)
+    drawQuad(newShaderMaterial(), x, y, w, h, clr)
     gl.bindFramebuffer(FRAMEBUFFER, nil)
-    # gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+    gl.scissor(0, 0, gl.canvas.width*2, gl.canvas.height*2)

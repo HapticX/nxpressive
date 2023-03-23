@@ -1,7 +1,9 @@
 #[
   Provides some utils for OpenGl
 ]#
-import ./material
+import
+  ./material,
+  ./color
 
 when not defined(js):
   import ../thirdparty/opengl
@@ -28,6 +30,7 @@ when not defined(js):
 
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat.GLint, w, h, 0, format, GL_UNSIGNED_BYTE, nil)
 
+    glGenerateMipmap(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, 0)
 
     texture
@@ -69,12 +72,16 @@ else:
     ## Creates a new empty texture
     result = gl.createTexture()
     gl.bindTexture(TEXTURE_2D, result)
+
+    gl.pixelStorei(UNPACK_FLIP_Y_WEBGL, 1)
+
+    gl.texImage2D(TEXTURE_2D, 0, internalFormat, w, h, 0, format, UNSIGNED_BYTE, nil)
     gl.texParameterf(TEXTURE_2D, TEXTURE_MIN_FILTER, LINEAR.float)
     gl.texParameterf(TEXTURE_2D, TEXTURE_MAG_FILTER, LINEAR.float)
 
     gl.texParameterf(TEXTURE_2D, TEXTURE_WRAP_S, CLAMP_TO_EDGE.float)
     gl.texParameterf(TEXTURE_2D, TEXTURE_WRAP_T, CLAMP_TO_EDGE.float)
-    gl.texImage2D(TEXTURE_2D, 0, internalFormat, w, h, 0, format, UNSIGNED_BYTE, nil)
+    gl.generateMipmap(TEXTURE_2D)
     gl.bindTexture(TEXTURE_2D, nil)
 
   proc initFramebuffers*(colorTexture: WebGLTexture, rbo: var WebGLRenderbuffer, w, h: float): WebGLFramebuffer =
@@ -88,7 +95,8 @@ else:
     gl.clear(COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT)
     gl.enable(BLEND)
     gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
-    gl.viewport(0, 0, w.int, h.int)
+    gl.viewport(0, 0, (w).int, (h).int)
+    gl.scissor(0, 0, (w * 2).int, (h * 2).int)
     
     rbo = gl.createRenderBuffer()
     gl.bindRenderbuffer(RENDERBUFFER, rbo)
@@ -99,14 +107,15 @@ else:
     gl.bindFramebuffer(FRAMEBUFFER, nil)
     fbo
   
-  proc drawQuad*(material: ShaderMaterial, x, y, w, h: float) =
+  proc drawQuad*(material: ShaderMaterial, x, y, w, h: float, clr: Color) =
+    ## Draws colored quad
     var
       vertices = [
-      # x, y      r   g   b   a
-        x+w, y+h, 1f, 0f, 1f, 1f,
-        x+w, y,   1f, 1f, 0f, 1f,
-        x,   y,   0f, 0f, 1f, 1f,
-        x,   y+h, 0f, 1f, 1f, 1f,
+      # x, y                  r   g   b   a
+        x/2f+w/2, y/2f+h/2, clr.r, clr.g, clr.b, clr.a,
+        x/2f+w/2, y/2f,   clr.r, clr.g, clr.b, clr.a,
+        x/2f,     y/2f,   clr.r, clr.g, clr.b, clr.a,
+        x/2f,     y/2f+h/2, clr.r, clr.g, clr.b, clr.a,
       ]
 
     if not material.isCompiled:
@@ -125,8 +134,8 @@ else:
     
     gl.enableVertexAttribArray(pos)
     gl.enableVertexAttribArray(clr)
-    gl.vertexAttribPointer(pos, 2, FLOAT, false, 6*4, 0)
-    gl.vertexAttribPointer(clr, 4, FLOAT, false, 6*4, 2*4)
+    gl.vertexAttribPointer(pos, 2, FLOAT, false, vertices.len, 0)
+    gl.vertexAttribPointer(clr, 4, FLOAT, false, vertices.len, 2*4)
 
     gl.uniform2f(uRes, gl.canvas.width.float, gl.canvas.height.float)
 
@@ -134,4 +143,51 @@ else:
 
     material.unuse()
     gl.bindBuffer(ARRAY_BUFFER, nil)
+    gl.deleteBuffer(vertexBuffer)
+  
+  proc drawTexQuad*(material: ShaderMaterial, tex: WebGLTexture, x, y, w, h: float, clr: Color) =
+    ## Draws textured quad
+    var vertices = [
+      # x, y          UV      r   g   b   a
+        x/2,   y/2,   1f, 1f, clr.r, clr.g, clr.b, clr.a,  # 1, 1
+        x/2+w, y/2,   0f, 1f, clr.r, clr.g, clr.b, clr.a,  # 0, 1
+        x/2+w, y/2+h, 0f, 0f, clr.r, clr.g, clr.b, clr.a,  # 0, 0
+        x/2,   y/2+h, 1f, 0f, clr.r, clr.g, clr.b, clr.a,  # 1, 0
+    ]
+
+    if not material.isCompiled:
+      material.compile()
+    material.use()
+
+    var
+      vertexBuffer = gl.createBuffer()
+    gl.bindBuffer(ARRAY_BUFFER, vertexBuffer)
+    gl.bufferData(ARRAY_BUFFER, vertices, STATIC_DRAW)
+
+    var
+      pos = gl.getAttribLocation(material.program, "pos")  # vec2
+      clr = gl.getAttribLocation(material.program, "clr")  # vec4
+      uv = gl.getAttribLocation(material.program, "uv")  # vec2
+      uRes = gl.getUniformLocation(material.program, "u_res")  # float
+      uTex = gl.getUniformLocation(material.program, "u_texture")  # sampler2D
+    
+    gl.enableVertexAttribArray(pos)
+    gl.enableVertexAttribArray(uv)
+    gl.enableVertexAttribArray(clr)
+
+    gl.vertexAttribPointer(pos, 2, FLOAT, false, vertices.len, 0)
+    gl.vertexAttribPointer(uv, 2, FLOAT, false, vertices.len, 8)
+    gl.vertexAttribPointer(clr, 4, FLOAT, false, vertices.len, 16)
+
+
+    gl.activeTexture(TEXTURE0)
+    gl.bindTexture(TEXTURE_2D, tex)
+    gl.uniform2f(uRes, gl.canvas.width.float, gl.canvas.height.float)
+    gl.uniform1i(uTex, 0)
+
+    gl.drawArrays(TRIANGLE_FAN, 0, 4)
+
+    material.unuse()
+    gl.bindBuffer(ARRAY_BUFFER, nil)
+    gl.bindTexture(TEXTURE_2D, nil)
     gl.deleteBuffer(vertexBuffer)

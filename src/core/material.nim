@@ -44,8 +44,9 @@ else:
       varying vec4 v_color;
       
       void main() {
-          gl_Position = vec4((pos / u_res) * 25.0, 0, 1);
-          v_color = clr;
+        vec2 position = ((pos / u_res) * 2.0 - 1.0) * vec2(1, -1);
+        gl_Position = vec4(position, 0, 1);
+        v_color = clr;
       }"""
     DefaultFragmentCode* = """
       precision mediump float;
@@ -53,40 +54,48 @@ else:
       varying vec4 v_color;
 
       void main() {
-        gl_FragColor = vec4(1, 1, 1, 1);
+        gl_FragColor = v_color;
       }"""
     DefaultTextureVertexCode* = """
       precision mediump float;
-      
-      attribute vec2 UV;
+
+      attribute vec2 uv;
       attribute vec2 pos;
       attribute vec4 clr;
-      uniform mat4 u_matrix;
+      uniform vec2 u_res;
 
       varying vec2 v_tex_coords;
       varying vec4 v_color;
+      varying vec2 v_res;
       
       void main() {
-        gl_Position = vec4(pos, 0, 1) * u_matrix;
+        vec2 position = ((pos / u_res) * 2.0 - 1.0) * vec2(1, -1);
+        gl_Position = vec4(position, 0, 1);
         v_color = clr;
-        v_tex_coords = UV;
+        v_res = u_res;
+        v_tex_coords = uv;
       }"""
     DefaultTextureFragmentCode* = """
       precision mediump float;
       
       varying vec4 v_color;
+      varying vec2 v_res;
       varying vec2 v_tex_coords;
-      uniform sampler2D texture;
+      uniform sampler2D u_texture;
       
       void main() {
-        gl_FragColor = texture2D(texture, v_tex_coords) * v_color;
+        gl_FragColor = texture2D(u_texture, v_tex_coords) * v_color;
       }"""
 
 
 type
   ShaderMaterial* = ref object
-    vertexCode*: string
-    fragmentCode*: string
+    when defined(js):
+      vertexCode*: cstring
+      fragmentCode*: cstring
+    else:
+      vertexCode*: string
+      fragmentCode*: string
     when defined(vulkan):
       discard
     elif not defined(js):
@@ -150,6 +159,14 @@ proc compile*(self: ShaderMaterial) =
     if not gl.getStatus(self.fragmentShader):
       echo gl.getShaderInfoLog(self.fragmentShader)
       echo self.fragmentCode
+
+    when defined(debug):
+      {.emit: """
+      let src = `gl`.getExtension('WEBGL_debug_shaders').getTranslatedShaderSource(`self`.`vertexShader`);
+      console.log(src);
+      src = `gl`.getExtension('WEBGL_debug_shaders').getTranslatedShaderSource(`self`.`fragmentShader`);
+      console.log(src);
+      """.}
 
     gl.attachShader(self.program, self.vertexShader)
     gl.attachShader(self.program, self.fragmentShader)
