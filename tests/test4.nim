@@ -31,7 +31,8 @@ suite "Drawing":
     
     var canvas = newHCanvas()
     scene.addChild(canvas)
-    canvas.drawRect(0, 0, 512, 512, BlackClr)
+    canvas.fill(newColor(1, 0.75, 1))
+    canvas.drawRect(32, 32, 480, 480, BlackClr)
     canvas.drawRect(128, 256, 16, 96, RedClr)
     canvas.drawRect(111, 111, 160, 160, BlueClr)
     canvas.drawRect(130, 64, 128, 256, newColor(0, 1, 0, 0.5))

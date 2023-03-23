@@ -95,8 +95,8 @@ else:
     gl.clear(COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT)
     gl.enable(BLEND)
     gl.blendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
-    gl.viewport(0, 0, (w).int, (h).int)
-    gl.scissor(0, 0, (w * 2).int, (h * 2).int)
+    gl.viewport(0, 0, w.int, h.int)
+    gl.scissor(0, 0, w.int, h.int)
     
     rbo = gl.createRenderBuffer()
     gl.bindRenderbuffer(RENDERBUFFER, rbo)
@@ -112,10 +112,10 @@ else:
     var
       vertices = [
       # x, y                  r   g   b   a
-        x/2f+w/2, y/2f+h/2, clr.r, clr.g, clr.b, clr.a,
-        x/2f+w/2, y/2f,   clr.r, clr.g, clr.b, clr.a,
-        x/2f,     y/2f,   clr.r, clr.g, clr.b, clr.a,
-        x/2f,     y/2f+h/2, clr.r, clr.g, clr.b, clr.a,
+        x/2f+w, y/2f+h, clr.r, clr.g, clr.b, clr.a,
+        x/2f+w, y/2f,   clr.r, clr.g, clr.b, clr.a,
+        x/2f,   y/2f,   clr.r, clr.g, clr.b, clr.a,
+        x/2f,   y/2f+h, clr.r, clr.g, clr.b, clr.a,
       ]
 
     if not material.isCompiled:
@@ -149,10 +149,10 @@ else:
     ## Draws textured quad
     var vertices = [
       # x, y          UV      r   g   b   a
-        x/2,   y/2,   1f, 1f, clr.r, clr.g, clr.b, clr.a,  # 1, 1
-        x/2+w, y/2,   0f, 1f, clr.r, clr.g, clr.b, clr.a,  # 0, 1
-        x/2+w, y/2+h, 0f, 0f, clr.r, clr.g, clr.b, clr.a,  # 0, 0
-        x/2,   y/2+h, 1f, 0f, clr.r, clr.g, clr.b, clr.a,  # 1, 0
+        x/2f,   y/2f,   0f, 0f, clr.r, clr.g, clr.b, clr.a,  # 1, 1
+        x/2f+w, y/2f,   1f, 0f, clr.r, clr.g, clr.b, clr.a,  # 0, 1
+        x/2f+w, y/2f+h, 1f, 1f, clr.r, clr.g, clr.b, clr.a,  # 0, 0
+        x/2f,   y/2f+h, 0f, 1f, clr.r, clr.g, clr.b, clr.a,  # 1, 0
     ]
 
     if not material.isCompiled:
@@ -178,7 +178,6 @@ else:
     gl.vertexAttribPointer(pos, 2, FLOAT, false, vertices.len, 0)
     gl.vertexAttribPointer(uv, 2, FLOAT, false, vertices.len, 8)
     gl.vertexAttribPointer(clr, 4, FLOAT, false, vertices.len, 16)
-
 
     gl.activeTexture(TEXTURE0)
     gl.bindTexture(TEXTURE_2D, tex)

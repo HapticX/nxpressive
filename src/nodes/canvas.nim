@@ -134,9 +134,25 @@ proc drawRect*(self: HCanvasRef, x, y, w, h: float, clr: Color) =
     glBindFramebuffer(GL_FRAMEBUFFER, 0)
   else:
     gl.bindFramebuffer(FRAMEBUFFER, self.fbo)
-    gl.viewport(0, 0, self.w.int, self.h.int)
-    gl.scissor(0, 0, (self.w*2.0).int, (self.h*2.0).int)
+    gl.viewport(x.int, y.int, self.w.int, self.h.int)
+    gl.scissor(x.int, y.int, self.w.int, self.h.int)
     drawQuad(newShaderMaterial(), x, y, w, h, clr)
     gl.bindFramebuffer(FRAMEBUFFER, nil)
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-    gl.scissor(0, 0, gl.canvas.width*2, gl.canvas.height*2)
+    gl.scissor(0, 0, gl.canvas.width, gl.canvas.height)
+
+
+proc fill*(self: HCanvasRef, clr: Color) =
+  ## Fills canvas by color
+  when defined(vulkan):
+    discard
+  elif not defined(js):
+    glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
+    glClearColor(clr.r, clr.g, clr.b, clr.a)
+    glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0)
+  else:
+    gl.bindFramebuffer(FRAMEBUFFER, self.fbo)
+    gl.clearColor(clr.r, clr.g, clr.b, clr.a)
+    gl.clear(COLOR_BUFFER_BIT or DEPTH_BUFFER_BIT)
+    gl.bindFramebuffer(FRAMEBUFFER, nil)
