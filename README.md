@@ -1,6 +1,6 @@
 <div align="center">
 
-## ` H a p t i c X   E n g i n e `
+## ` N X p r e s s i v e `
 experimental UI/2D engine written in Nim with :heart:
 
 ![Nim language](https://img.shields.io/badge/>=1.0.0-1b1e2b?style=for-the-badge&logo=nim&logoColor=f1fa8c&label=Nim&labelColor=2b2e3b)
